@@ -1,193 +1,496 @@
 <!doctype html>
 <html lang="ru">
 <head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Работа с возражениями</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --card: rgba(255,255,255,.88);
+      --text: #182235;
+      --muted: #63708a;
+      --primary: #3767ff;
+      --primary-dark: #244bd6;
+      --soft: #e9efff;
+      --line: #dfe6f3;
+      --success: #12a36d;
+      --shadow: 0 24px 70px rgba(27, 43, 78, .16);
+      --radius: 24px;
+    }
 
+    * { box-sizing: border-box; }
 
-Работа с возражениями
-<style>
-:root {
---bg: #f4f7fb;
---card: rgba(255,255,255,.88);
---text: #182235;
---muted: #63708a;
---primary: #3767ff;
---primary-dark: #244bd6;
---soft: #e9efff;
---line: #dfe6f3;
---success: #12a36d;
---shadow: 0 24px 70px rgba(27, 43, 78, .16);
---radius: 24px;
-}
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(55,103,255,.22), transparent 32rem),
+        radial-gradient(circle at bottom right, rgba(18,163,109,.16), transparent 30rem),
+        var(--bg);
+    }
 
-* { box-sizing: border-box; }
+    .page {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 42px 0;
+    }
 
-body {
-margin: 0;
-min-height: 100vh;
-font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-color: var(--text);
-background:
-radial-gradient(circle at top left, rgba(55,103,255,.22), transparent 32rem),
-radial-gradient(circle at bottom right, rgba(18,163,109,.16), transparent 30rem),
-var(--bg);
-}
+    .hero {
+      display: grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 28px;
+      align-items: stretch;
+      margin-bottom: 24px;
+    }
 
-.page {
-width: min(1120px, calc(100% - 32px));
-margin: 0 auto;
-padding: 42px 0;
-}
+    .hero-card, .panel {
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,.72);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
 
-.hero {
-display: grid;
-grid-template-columns: 1.15fr .85fr;
-gap: 28px;
-align-items: stretch;
-margin-bottom: 24px;
-}
+    .hero-card {
+      padding: 34px;
+      overflow: hidden;
+      position: relative;
+    }
 
-.hero-card, .panel {
-background: var(--card);
-border: 1px solid rgba(255,255,255,.72);
-border-radius: var(--radius);
-box-shadow: var(--shadow);
-backdrop-filter: blur(14px);
-}
+    .hero-card::after {
+      content: "";
+      position: absolute;
+      width: 180px;
+      height: 180px;
+      right: -48px;
+      top: -48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(55,103,255,.22), rgba(18,163,109,.16));
+    }
 
-.hero-card {
-padding: 34px;
-overflow: hidden;
-position: relative;
-}
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: var(--soft);
+      color: var(--primary-dark);
+      font-weight: 700;
+      font-size: 13px;
+      margin-bottom: 18px;
+    }
 
-.hero-card::after {
-content: "";
-position: absolute;
-width: 180px;
-height: 180px;
-right: -48px;
-top: -48px;
-border-radius: 50%;
-background: linear-gradient(135deg, rgba(55,103,255,.22), rgba(18,163,109,.16));
-}
+    h1 {
+      font-size: clamp(34px, 5vw, 58px);
+      line-height: .98;
+      margin: 0 0 16px;
+      letter-spacing: -1.7px;
+    }
 
-.badge {
-display: inline-flex;
-align-items: center;
-gap: 8px;
-padding: 8px 12px;
-border-radius: 999px;
-background: var(--soft);
-color: var(--primary-dark);
-font-weight: 700;
-font-size: 13px;
-margin-bottom: 18px;
-}
+    .lead {
+      max-width: 720px;
+      color: var(--muted);
+      font-size: 18px;
+      line-height: 1.55;
+      margin: 0;
+    }
 
-h1 {
-font-size: clamp(34px, 5vw, 58px);
-line-height: .98;
-margin: 0 0 16px;
-letter-spacing: -1.7px;
-}
+    .stats {
+      padding: 28px;
+      display: grid;
+      gap: 16px;
+      align-content: center;
+    }
 
-.lead {
-max-width: 720px;
-color: var(--muted);
-font-size: 18px;
-line-height: 1.55;
-margin: 0;
-}
+    .stat {
+      padding: 18px;
+      border-radius: 18px;
+      background: #fff;
+      border: 1px solid var(--line);
+    }
 
-.stats {
-padding: 28px;
-display: grid;
-gap: 16px;
-align-content: center;
-}
+    .stat strong {
+      display: block;
+      font-size: 32px;
+      line-height: 1;
+      color: var(--primary-dark);
+      margin-bottom: 6px;
+    }
 
-.stat {
-padding: 18px;
-border-radius: 18px;
-background: #fff;
-border: 1px solid var(--line);
-}
+    .stat span {
+      color: var(--muted);
+      font-size: 14px;
+    }
 
-.stat strong {
-display: block;
-font-size: 32px;
-line-height: 1;
-color: var(--primary-dark);
-margin-bottom: 6px;
-}
+    .panel {
+      padding: 26px;
+    }
 
-.stat span {
-color: var(--muted);
-font-size: 14px;
-}
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 14px;
+      align-items: end;
+      margin-bottom: 22px;
+    }
 
-.panel {
-padding: 26px;
-}
+    label {
+      display: block;
+      font-weight: 800;
+      margin-bottom: 9px;
+    }
 
-.controls {
-display: grid;
-grid-template-columns: 1fr auto;
-gap: 14px;
-align-items: end;
-margin-bottom: 22px;
-}
+    select, button {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 15px 16px;
+      font-size: 16px;
+      background: #fff;
+      color: var(--text);
+      outline: none;
+    }
 
-label {
-display: block;
-font-weight: 800;
-margin-bottom: 9px;
-}
+    select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(55,103,255,.14);
+    }
 
-select, button {
-width: 100%;
-border: 1px solid var(--line);
-border-radius: 16px;
-padding: 15px 16px;
-font-size: 16px;
-background: #fff;
-color: var(--text);
-outline: none;
-}
+    button {
+      cursor: pointer;
+      border: 0;
+      background: var(--primary);
+      color: #fff;
+      font-weight: 800;
+      transition: .18s ease;
+      white-space: nowrap;
+    }
 
-select:focus {
-border-color: var(--primary);
-box-shadow: 0 0 0 4px rgba(55,103,255,.14);
-}
+    button:hover { background: var(--primary-dark); transform: translateY(-1px); }
 
-button {
-cursor: pointer;
-border: 0;
-background: var(--primary);
-color: #fff;
-font-weight: 800;
-transition: .18s ease;
-white-space: nowrap;
-}
+    .result-grid {
+      display: grid;
+      grid-template-columns: .8fr 1.2fr;
+      gap: 18px;
+    }
 
-button:hover { background: var(--primary-dark); transform: translateY(-1px); }
+    .example, .templates {
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: #fff;
+      overflow: hidden;
+    }
 
-.result-grid {
-display: grid;
-grid-template-columns: .8fr 1.2fr;
-gap: 18px;
-}
+    .section-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      padding: 18px 20px;
+      background: linear-gradient(180deg, #ffffff, #f7f9ff);
+      border-bottom: 1px solid var(--line);
+    }
 
-.example, .templates {
-border: 1px solid var(--line);
-border-radius: 20px;
-background: #fff;
-overflow: hidden;
-}
+    .section-title h2 {
+      margin: 0;
+      font-size: 18px;
+    }
 
-.section-title {
-display: flex;
-justify-content: space-between;
-gap: 12px;
-align-items: center;
-padding: 1
+    .pill {
+      font-size: 12px;
+      color: var(--success);
+      background: rgba(18,163,109,.1);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-weight: 800;
+    }
+
+    .objection-name {
+      padding: 22px 20px;
+      font-size: 24px;
+      line-height: 1.25;
+      font-weight: 900;
+    }
+
+    .hint {
+      padding: 0 20px 22px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 16px;
+      border-bottom: 1px solid var(--line);
+      background: #fbfcff;
+    }
+
+    .tab {
+      width: auto;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: #fff;
+      color: var(--primary-dark);
+      border: 1px solid var(--line);
+      font-size: 14px;
+    }
+
+    .tab.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    .template-text {
+      padding: 22px;
+      white-space: pre-wrap;
+      line-height: 1.62;
+      font-size: 16px;
+    }
+
+    .copy-row {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      padding: 0 22px 22px;
+    }
+
+    .copy {
+      width: auto;
+      padding: 12px 16px;
+      background: #111827;
+    }
+
+    .copy:hover { background: #000; }
+
+    footer {
+      margin-top: 18px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 13px;
+    }
+
+    @media (max-width: 850px) {
+      .hero, .result-grid, .controls {
+        grid-template-columns: 1fr;
+      }
+
+      .page { width: min(100% - 20px, 1120px); padding: 22px 0; }
+      .hero-card, .panel { padding: 22px; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <div class="hero-card">
+        <div class="badge">💬 Скрипты продаж</div>
+        <h1>Работа с возражениями</h1>
+        <p class="lead">
+          Выберите возражение клиента и получите готовый шаблон ответа.
+          Можно быстро переключаться между вариантами и копировать текст для работы.
+        </p>
+      </div>
+      <div class="stats hero-card">
+        <div class="stat">
+          <strong id="countObjections">0</strong>
+          <span>возражений в базе</span>
+        </div>
+        <div class="stat">
+          <strong id="countTemplates">0</strong>
+          <span>готовых вариантов ответа</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="controls">
+        <div>
+          <label for="objectionSelect">Выберите возражение</label>
+          <select id="objectionSelect"></select>
+        </div>
+        <button id="randomBtn" type="button">Случайное возражение</button>
+      </div>
+
+      <div class="result-grid">
+        <article class="example">
+          <div class="section-title">
+            <h2>Пример возражения</h2>
+            <span class="pill">ситуация клиента</span>
+          </div>
+          <div class="objection-name" id="objectionName"></div>
+          <div class="hint">
+            Используйте этот блок как ориентир: определите, что именно смущает клиента,
+            а затем выберите подходящий шаблон ответа справа.
+          </div>
+        </article>
+
+        <article class="templates">
+          <div class="section-title">
+            <h2>Шаблон ответа</h2>
+            <span class="pill" id="templateCounter"></span>
+          </div>
+          <div class="tabs" id="tabs"></div>
+          <div class="template-text" id="templateText"></div>
+          <div class="copy-row">
+            <button class="copy" id="copyBtn" type="button">Скопировать шаблон</button>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <footer>Файл можно разместить в GitHub Pages как <b>index.html</b>.</footer>
+  </main>
+
+  <script>
+    const DATA = [
+  {
+    "objection": "Хочет продавать самостоятельно",
+    "variants": [
+      {
+        "title": "Вариант 1",
+        "text": "Вариант 1: Имя клиента, давайте посмотрим на это с точки зрения покупателя. Сейчас ваше объявление видят те, кто уже знает, чего хочет – например, однокомнатную квартиру в центре за 5 миллионов. Но что насчет тех, кто еще не определился с выбором? Возможно, среди них есть покупатели двухкомнатной квартиры, которому не хватило бюджета, или студии, готовый доплатить за метраж.\n\nЗадача агента — найти именно этих людей, которые еще не знают, что ваша квартира — их идеальный вариант. Они работают не с поиском, а со спросом."
+      },
+      {
+        "title": "Вариант 2",
+        "text": "Вариант 2: Имя клиента, понимаю, действительно, выложить объявление — это просто. Но ключевой вопрос не в \"как разместить\", а в \"как продать дорого, быстро и без проблем\". Именно здесь и работает профессионал.\n\nПрофессиональный агент обеспечивает полный цикл: ведет правильную политику ценообразования, подготовку к сделке, подготовку покупателя."
+      },
+      {
+        "title": "Вариант 3",
+        "text": "Вариант 3: Имя клиента, агент помогает исключить субъективность из сделки и защищает ваши интересы. Когда на сделку выходит один покупатель, он может, даже неосознанно, создавать ощущение, что другого шанса не будет. В такой атмосфере легко пойти на уступки, которые не в ваших интересах.\n\nАгент же выступает как беспристрастный переговорщик. Он не поддается эмоциям и действует строго в рамках рыночной логики. Агент не просто «торгуется», а выстраивает коммуникацию так, чтобы покупатель сам вышел на ваши условия. Это касается не только цены, но и всех деталей: сроков, мебели, ремонта.\n\nВ итоге вы продаете не дешевле, а по рыночной стоимости и на ваших условиях."
+      }
+    ]
+  },
+  {
+    "objection": "Высокая комиссия",
+    "variants": [
+      {
+        "title": "Вариант 1",
+        "text": "Вариант 1: За эти деньги вы получаете:\n\n✅ Профессиональную оценку — чтобы не продешевить на сотни тысяч\n\n✅ Маркетинговую упаковку — фото, тексты, которые продают\n\n✅ Доступ к базе проверенных покупателей — не просто \"разместил и жду\"\n\n✅ Полное юридическое сопровождение — защита от рисков и подводных камней\n\n✅ Переговоры и торг —  агент подберет и сторгует для вас лучшую цену\n\n✅ Экономию времени — вы продолжаете зарабатывать, пока агент работает над вашим объектом"
+      },
+      {
+        "title": "Вариант 2",
+        "text": "Вариант 2: ИМЯ КЛИЕНТА, подскажите, а какую комиссию вам озвучил наш агент? И сориентируйте, пожалуйста, эта сумма названа с какой суммы продажи объекта?...\n\n ИМЯ КЛИЕНТА, благодарю! Подскажите, а вы комиссию нашего агента с чем сравниваете? У вас есть другие предложения, более выгодные, на ваш взгляд?...\n\nИМЯ КЛИЕНТА, хорошо! А что сходит в стоимость работы другого агентства, вы уточняли?\n\nИМЯ КЛИЕНТА, я знаете, почему спрашиваю. Понятно, что для продавца — основной показатель это размер комиссии агента, но мало кто анализирует, из чего именно эта стоимость услуг складывается. В нашем случае, комиссия агента — это не только работа агента, но и продвижение вашего объявление, а также комплексная работа по сопровождению сделки. Авито выступает за безопасность и комфорт, поэтому нами и была разработана эта программа.\n\nПомимо этого мы, как одна из самых крупнейших площадок объявлений, будем продвигать ваш объект на тарифе максимального продвижения. Согласитесь, основываясь на этих данных, стоимость комиссии кажется уже не такой высокой?...\n\nИМЯ КЛИЕНТА, а вам какая комиссия кажется оптимальной?​"
+      },
+      {
+        "title": "Вариант 3",
+        "text": "Вариант 3: Задача агента — используя все доступные ему каналы продажи, найти покупателей. Вы знали, что треть покупателей, как правило, это покупатели из других регионов? Наш партнер будет использовать свою партнерскую сеть/свои каналы, чтобы привлечь таких покупателей.  Это увеличит шанс найти того, кто предложит максимальную цену, согласны?"
+      }
+    ]
+  },
+  {
+    "objection": "Есть свой агент",
+    "variants": [
+      {
+        "title": "Вариант 1",
+        "text": "Вариант 1: Понимаю. Но Комфортная сделка — это не только агент, но и дополнительная страховая защита + поддержка сервиса. Это уровень безопасности, которого обычно нет при личном контакте."
+      },
+      {
+        "title": "Вариант 2",
+        "text": "Вариант 2: ИМЯ КЛИЕНТА, подскажите, пожалуйста, вам смогли предложить более выгодные условия? Что именно в условиях другого агентства вас заинтересовало больше?...\n\n ИМЯ КЛИЕНТА, благодарю за ответ! Сопровождение сделки в продаже недвижимости — очень важный этап, и необходимо правильно выбрать человека, который поможет вам успешно пройти все этапы сделки.\n\nПрограмма Комфортной Сделки  проверяет агентов по множеству пунктов, не только по операционным показателям, количеству продаж и опыту работы, но и по реальным отзывам реальных покупателей. Также немаловажным фактором является то, что Авито сопровождает на всех этапах ведение сделки, мы звоним и интересуемся, как проходит работа агента, какие результаты и так далее.\n\nИМЯ КЛИЕНТА, мне хотелось бы созвониться с вами повторно, к примеру, через месяц. Думаю, будет понятно, как продвигается продажа с тем агентом, которого вы выбрали сейчас, возможно через несколько недель наше предложение будет более актуально для вас, хорошо?"
+      },
+      {
+        "title": "Вариант 3",
+        "text": "Вариант 3: Агент агенту рознь. ​Агенты проверяются по опыту​ и отзывам пользователей, в программе участвуют только зарекомендовавшие себя на рынке специалисты, что в разы повышает вероятность успешной реализации. Согласны со мной?​​"
+      }
+    ]
+  },
+  {
+    "objection": "Надо подумать",
+    "variants": [
+      {
+        "title": "Вариант 1",
+        "text": "ИМЯ КЛИЕНТА, понял(а)! Тогда, возможно, у вас остались какие-либо вопросы по программе Комфортной сделки? Мне просто хотелось бы понимать, что конкретно в нашем предложении вызывает у вас сомнения на данный момент?\n\n ИМЯ КЛИЕНТА, безусловно, собственный опыт очень важен, но тут хотелось бы понимать, какой из критерий для вас важнее всего. Сроки продажи, максимально выгодная стоимость продажи или возможность не платить комиссию?"
+      }
+    ]
+  },
+  {
+    "objection": "Не готов снижать стоимость",
+    "variants": [
+      {
+        "title": "Вариант 1",
+        "text": "ИМЯ КЛИЕНТА, подскажите, пожалуйста, а какую стоимость предложил агент и насколько она ниже той суммы, за которую планируете продать объект?\n\nИМЯ КЛИЕНТА, правильно понимаю, что от участия в программе вас остановило только снижение стоимости объекта?\n\nАгент привёл вам анализ и обосновал ту сумму, которую он предлагает к продаже?\n\nИМЯ КЛИЕНТА, а ещё хотелось уточнить, вы когда формировали предложение о стоимости своего объекта, вы использовали калькулятор стоимости на нашей площадке Авито? Сравнивали с другими объектами?\n\n*нам нужно понять, обоснована сумма продажи у селлера или нет*\n\nесли да → ИМЯ КЛИЕНТА, спасибо вам за подробный ответ на мои вопросы. Почему спрашиваю, нам в программе Комфортная сделка очень важно, чтобы условия и сумма продажи объекта были комфортны продавцу. Я вижу, что в вашей ситуации можно попробовать плавное снижение стоимости объекта, исходя из реакции рынка можно будет понемногу корректировать стоимость. Давайте я попрошу агента ещё раз с вами связаться и попробовать выстроить дальнейшую стратегию продажи? Хорошо, ИМЯ КЛИЕНТА?\nесли нет → ИМЯ КЛИЕНТА, подскажите, а для вас важнее реализовать объект как можно скорее или как можно выгоднее по стоимости? \nДавайте тогда поступим так, вам пару недель хватит для того, чтобы посмотреть, как будет продвигаться продажа по той стоимости, которую вы сейчас поставили? А я свяжусь с вами через 3 недели, ... числа и мы с вами обсудим дальнейшую стратегию продажи вашего объекта, хорошо, ИМЯ КЛИЕНТА?"
+      }
+    ]
+  }
+];
+
+    const select = document.getElementById('objectionSelect');
+    const objectionName = document.getElementById('objectionName');
+    const tabs = document.getElementById('tabs');
+    const templateText = document.getElementById('templateText');
+    const templateCounter = document.getElementById('templateCounter');
+    const randomBtn = document.getElementById('randomBtn');
+    const copyBtn = document.getElementById('copyBtn');
+
+    let currentIndex = 0;
+    let currentVariant = 0;
+
+    function init() {
+      document.getElementById('countObjections').textContent = DATA.length;
+      document.getElementById('countTemplates').textContent =
+        DATA.reduce((sum, item) => sum + item.variants.length, 0);
+
+      DATA.forEach((item, index) => {
+        const option = document.createElement('option');
+        option.value = index;
+        option.textContent = item.objection;
+        select.appendChild(option);
+      });
+
+      select.addEventListener('change', () => {
+        render(Number(select.value), 0);
+      });
+
+      randomBtn.addEventListener('click', () => {
+        const next = Math.floor(Math.random() * DATA.length);
+        render(next, 0);
+      });
+
+      copyBtn.addEventListener('click', async () => {
+        const text = templateText.textContent;
+        try {
+          await navigator.clipboard.writeText(text);
+          copyBtn.textContent = 'Скопировано ✓';
+          setTimeout(() => copyBtn.textContent = 'Скопировать шаблон', 1400);
+        } catch (error) {
+          alert('Не удалось скопировать автоматически. Выделите текст вручную.');
+        }
+      });
+
+      render(0, 0);
+    }
+
+    function render(index, variantIndex) {
+      currentIndex = index;
+      currentVariant = variantIndex;
+      const item = DATA[index];
+
+      select.value = index;
+      objectionName.textContent = item.objection;
+      templateCounter.textContent = item.variants.length + ' вариант(а)';
+
+      tabs.innerHTML = '';
+      item.variants.forEach((variant, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'tab' + (idx === variantIndex ? ' active' : '');
+        btn.type = 'button';
+        btn.textContent = variant.title;
+        btn.addEventListener('click', () => render(index, idx));
+        tabs.appendChild(btn);
+      });
+
+      templateText.textContent = item.variants[variantIndex]?.text || 'Для этого возражения пока нет шаблона.';
+    }
+
+    init();
+  </script>
+</body>
+</html>
