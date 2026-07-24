@@ -1,1246 +1,421 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="База выгод, аргументаций и техник для работы с собственниками">
-  <title>База аргументаций</title>
-  <style>
-    :root {
-      --page: #f3f5f9;
-      --surface: rgba(255, 255, 255, 0.92);
-      --surface-solid: #ffffff;
-      --text: #15171c;
-      --muted: #687080;
-      --line: #e4e8ef;
-      --accent: #6257f5;
-      --accent-dark: #4a3fe0;
-      --accent-soft: #eeecff;
-      --green: #1f9d6a;
-      --green-soft: #e7f8f0;
-      --shadow: 0 20px 55px rgba(31, 39, 61, 0.10);
-      --radius-xl: 28px;
-      --radius-lg: 20px;
-      --radius-md: 14px;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    html {
-      scroll-behavior: smooth;
-    }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      color: var(--text);
-      background:
-        radial-gradient(circle at 8% 0%, rgba(98, 87, 245, 0.16), transparent 31rem),
-        radial-gradient(circle at 93% 12%, rgba(31, 157, 106, 0.10), transparent 26rem),
-        var(--page);
-      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    button, input, select, textarea {
-      font: inherit;
-    }
-
-    button, select {
-      cursor: pointer;
-    }
-
-    .shell {
-      width: min(1220px, calc(100% - 32px));
-      margin: 0 auto;
-      padding: 34px 0 48px;
-    }
-
-    .hero {
-      position: relative;
-      overflow: hidden;
-      min-height: 220px;
-      padding: 34px;
-      border-radius: var(--radius-xl);
-      color: #fff;
-      background:
-        linear-gradient(135deg, rgba(20, 21, 31, 0.98), rgba(54, 49, 116, 0.96)),
-        #171821;
-      box-shadow: var(--shadow);
-    }
-
-    .hero::before,
-    .hero::after {
-      content: "";
-      position: absolute;
-      border-radius: 999px;
-      filter: blur(1px);
-      pointer-events: none;
-    }
-
-    .hero::before {
-      width: 330px;
-      height: 330px;
-      top: -190px;
-      right: 60px;
-      background: rgba(126, 115, 255, 0.42);
-    }
-
-    .hero::after {
-      width: 230px;
-      height: 230px;
-      right: -90px;
-      bottom: -120px;
-      background: rgba(54, 215, 158, 0.28);
-    }
-
-    .hero-content {
-      position: relative;
-      z-index: 1;
-      display: grid;
-      grid-template-columns: 1fr;
-      align-items: end;
-      gap: 28px;
-    }
-
-    .eyebrow {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 16px;
-      padding: 8px 12px;
-      border: 1px solid rgba(255, 255, 255, 0.16);
-      border-radius: 999px;
-      color: rgba(255, 255, 255, 0.82);
-      background: rgba(255, 255, 255, 0.08);
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: 0.03em;
-    }
-
-    .eyebrow-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #63e2ac;
-      box-shadow: 0 0 0 5px rgba(99, 226, 172, 0.12);
-    }
-
-    h1 {
-      max-width: 760px;
-      margin: 0;
-      font-size: clamp(34px, 5vw, 59px);
-      line-height: 1.02;
-      letter-spacing: -0.045em;
-    }
-
-    .hero p {
-      max-width: 720px;
-      margin: 18px 0 0;
-      color: rgba(255, 255, 255, 0.70);
-      font-size: 17px;
-      line-height: 1.58;
-    }
-
-    .hero-stat {
-      display: none;
-      min-width: 155px;
-      padding: 20px;
-      border: 1px solid rgba(255, 255, 255, 0.14);
-      border-radius: 20px;
-      background: rgba(255, 255, 255, 0.08);
-      backdrop-filter: blur(12px);
-    }
-
-    .hero-stat strong {
-      display: block;
-      font-size: 38px;
-      line-height: 1;
-      letter-spacing: -0.04em;
-    }
-
-    .hero-stat span {
-      display: block;
-      margin-top: 7px;
-      color: rgba(255, 255, 255, 0.68);
-      font-size: 13px;
-      line-height: 1.35;
-    }
-
-    .workspace {
-      display: grid;
-      grid-template-columns: 370px minmax(0, 1fr);
-      gap: 22px;
-      margin-top: 22px;
-    }
-
-    .panel {
-      border: 1px solid rgba(222, 227, 236, 0.92);
-      border-radius: var(--radius-xl);
-      background: var(--surface);
-      box-shadow: 0 12px 38px rgba(31, 39, 61, 0.07);
-      backdrop-filter: blur(14px);
-    }
-
-    .controls-panel {
-      align-self: start;
-      padding: 24px;
-      position: sticky;
-      top: 18px;
-    }
-
-    .panel-title {
-      margin: 0;
-      font-size: 20px;
-      letter-spacing: -0.02em;
-    }
-
-    .panel-subtitle {
-      margin: 7px 0 22px;
-      color: var(--muted);
-      font-size: 14px;
-      line-height: 1.5;
-    }
-
-    .field {
-      margin-top: 17px;
-    }
-
-    .field:first-of-type {
-      margin-top: 0;
-    }
-
-    .field label {
-      display: block;
-      margin-bottom: 8px;
-      color: #343946;
-      font-size: 13px;
-      font-weight: 750;
-    }
-
-    .select-wrap {
-      position: relative;
-    }
-
-    .select-wrap::after {
-      content: "";
-      position: absolute;
-      top: 50%;
-      right: 16px;
-      width: 8px;
-      height: 8px;
-      border-right: 2px solid #7a8292;
-      border-bottom: 2px solid #7a8292;
-      transform: translateY(-70%) rotate(45deg);
-      pointer-events: none;
-    }
-
-    select,
-    .search-input,
-    .variable-input {
-      width: 100%;
-      min-height: 50px;
-      padding: 0 44px 0 15px;
-      border: 1px solid var(--line);
-      border-radius: var(--radius-md);
-      outline: none;
-      color: var(--text);
-      background: var(--surface-solid);
-      transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
-      appearance: none;
-    }
-
-    select:focus,
-    .search-input:focus,
-    .variable-input:focus,
-    .editor:focus {
-      border-color: rgba(98, 87, 245, 0.75);
-      box-shadow: 0 0 0 4px rgba(98, 87, 245, 0.10);
-    }
-
-    .search-box {
-      position: relative;
-      margin-bottom: 22px;
-    }
-
-    .search-input {
-      padding-left: 44px;
-      padding-right: 42px;
-    }
-
-    .search-icon {
-      position: absolute;
-      left: 15px;
-      top: 50%;
-      width: 18px;
-      height: 18px;
-      transform: translateY(-50%);
-      color: #7a8292;
-      pointer-events: none;
-    }
-
-    .clear-search {
-      position: absolute;
-      right: 10px;
-      top: 50%;
-      width: 32px;
-      height: 32px;
-      transform: translateY(-50%);
-      border: 0;
-      border-radius: 9px;
-      color: #818897;
-      background: transparent;
-      font-size: 20px;
-      line-height: 1;
-    }
-
-    .clear-search:hover {
-      background: #f0f2f6;
-    }
-
-    .search-results {
-      position: absolute;
-      z-index: 20;
-      top: calc(100% + 8px);
-      left: 0;
-      right: 0;
-      display: none;
-      max-height: 360px;
-      overflow-y: auto;
-      padding: 8px;
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      background: #fff;
-      box-shadow: 0 18px 48px rgba(31, 39, 61, 0.15);
-    }
-
-    .search-results.visible {
-      display: block;
-    }
-
-    .search-result {
-      width: 100%;
-      padding: 12px;
-      border: 0;
-      border-radius: 12px;
-      text-align: left;
-      color: var(--text);
-      background: transparent;
-    }
-
-    .search-result:hover {
-      background: #f5f5ff;
-    }
-
-    .search-result strong {
-      display: block;
-      margin-bottom: 5px;
-      font-size: 14px;
-      line-height: 1.35;
-    }
-
-    .search-result span {
-      display: block;
-      color: var(--muted);
-      font-size: 12px;
-      line-height: 1.4;
-    }
-
-    .empty-search {
-      padding: 18px 14px;
-      color: var(--muted);
-      text-align: center;
-      font-size: 13px;
-    }
-
-    .block-tabs {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 10px;
-      margin-top: 22px;
-      padding: 10px;
-    }
-
-    .block-tab {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      min-height: 54px;
-      padding: 12px 16px;
-      border: 1px solid transparent;
-      border-radius: 16px;
-      color: #333846;
-      background: transparent;
-      text-align: center;
-      transition: 0.18s ease;
-    }
-
-    .block-tab:hover {
-      background: #f5f6fa;
-    }
-
-    .block-tab.active {
-      border-color: #ddd9ff;
-      color: #4036c4;
-      background: var(--accent-soft);
-    }
-
-
-    .block-tab-label {
-      font-size: 14px;
-      font-weight: 800;
-      line-height: 1.3;
-    }
-
-
-    .content-panel {
-      min-width: 0;
-      padding: 28px;
-    }
-
-    .content-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 20px;
-      margin-bottom: 23px;
-    }
-
-    .badges {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      min-height: 28px;
-      padding: 5px 10px;
-      border-radius: 999px;
-      color: #4c43d0;
-      background: var(--accent-soft);
-      font-size: 12px;
-      font-weight: 800;
-    }
-
-    .badge.category {
-      color: #487064;
-      background: var(--green-soft);
-    }
-
-    .template-title {
-      margin: 0;
-      font-size: clamp(25px, 3vw, 36px);
-      line-height: 1.15;
-      letter-spacing: -0.035em;
-    }
-
-    .template-description {
-      margin: 10px 0 0;
-      color: var(--muted);
-      font-size: 14px;
-      line-height: 1.55;
-    }
-
-    .counter {
-      display: none;
-      flex: 0 0 auto;
-      padding: 10px 12px;
-      border: 1px solid var(--line);
-      border-radius: 13px;
-      color: var(--muted);
-      background: #fff;
-      font-size: 12px;
-      font-weight: 750;
-    }
-
-    .variables {
-      display: none;
-      margin: 0 0 20px;
-      padding: 18px;
-      border: 1px solid #dedaff;
-      border-radius: 18px;
-      background: #f8f7ff;
-    }
-
-    .variables.visible {
-      display: block;
-    }
-
-    .variables-header {
-      margin-bottom: 13px;
-    }
-
-    .variables-header strong {
-      display: block;
-      font-size: 15px;
-    }
-
-    .variables-header span {
-      display: block;
-      margin-top: 4px;
-      color: var(--muted);
-      font-size: 12px;
-    }
-
-    .variables-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
-    }
-
-    .variable-field label {
-      display: block;
-      margin-bottom: 7px;
-      color: #454a56;
-      font-size: 12px;
-      font-weight: 750;
-    }
-
-    .variable-input {
-      min-height: 45px;
-      padding-right: 13px;
-    }
-
-    .editor-wrap {
-      position: relative;
-    }
-
-    .editor-label {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 14px;
-      margin-bottom: 9px;
-      color: #3e4350;
-      font-size: 13px;
-      font-weight: 750;
-    }
-
-    .editor-label span {
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: 500;
-    }
-
-    .editor {
-      display: block;
-      width: 100%;
-      min-height: 330px;
-      resize: vertical;
-      padding: 21px;
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      outline: none;
-      color: #242730;
-      background: #fbfcfe;
-      font-size: 16px;
-      line-height: 1.68;
-      transition: border-color 0.18s ease, box-shadow 0.18s ease;
-    }
-
-    .actions {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 10px;
-      margin-top: 18px;
-    }
-
-    .primary-button,
-    .secondary-button {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 9px;
-      min-height: 48px;
-      padding: 0 18px;
-      border-radius: 14px;
-      font-weight: 800;
-      transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
-    }
-
-    .primary-button {
-      border: 1px solid var(--accent);
-      color: #fff;
-      background: linear-gradient(135deg, var(--accent), #786eff);
-      box-shadow: 0 10px 23px rgba(98, 87, 245, 0.22);
-    }
-
-    .primary-button:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 14px 29px rgba(98, 87, 245, 0.28);
-    }
-
-    .secondary-button {
-      border: 1px solid var(--line);
-      color: #414653;
-      background: #fff;
-    }
-
-    .secondary-button:hover {
-      background: #f5f6f9;
-    }
-
-    .copy-option {
-      display: inline-flex;
-      align-items: center;
-      gap: 9px;
-      margin-left: auto;
-      color: var(--muted);
-      font-size: 13px;
-      user-select: none;
-    }
-
-    .copy-option input {
-      width: 17px;
-      height: 17px;
-      accent-color: var(--accent);
-    }
-
-    .footer-note {
-      margin: 22px 2px 0;
-      color: #7b8391;
-      font-size: 12px;
-      line-height: 1.5;
-      text-align: center;
-    }
-
-    .toast {
-      position: fixed;
-      z-index: 100;
-      left: 50%;
-      bottom: 26px;
-      display: flex;
-      align-items: center;
-      gap: 9px;
-      padding: 13px 17px;
-      border-radius: 14px;
-      color: #fff;
-      background: #171921;
-      box-shadow: 0 16px 40px rgba(23, 25, 33, 0.24);
-      opacity: 0;
-      transform: translate(-50%, 18px);
-      pointer-events: none;
-      transition: 0.22s ease;
-      font-size: 14px;
-      font-weight: 750;
-    }
-
-    .toast.show {
-      opacity: 1;
-      transform: translate(-50%, 0);
-    }
-
-    .toast-check {
-      display: grid;
-      place-items: center;
-      width: 21px;
-      height: 21px;
-      border-radius: 50%;
-      background: var(--green);
-      font-size: 13px;
-    }
-
-    @media (max-width: 920px) {
-      .hero-content {
-        grid-template-columns: 1fr;
-      }
-
-      .hero-stat {
-        width: fit-content;
-      }
-
-      .workspace {
-        grid-template-columns: 1fr;
-      }
-
-      .controls-panel {
-        position: static;
-      }
-
-    }
-
-    @media (max-width: 640px) {
-      .shell {
-        width: min(100% - 20px, 1220px);
-        padding-top: 10px;
-      }
-
-      .hero {
-        min-height: auto;
-        padding: 25px 21px;
-        border-radius: 22px;
-      }
-
-      .hero p {
-        font-size: 15px;
-      }
-
-      .panel {
-        border-radius: 22px;
-      }
-
-      .controls-panel,
-      .content-panel {
-        padding: 20px;
-      }
-
-      .block-tabs {
-        grid-template-columns: 1fr;
-      }
-
-      .content-top {
-        display: block;
-      }
-
-      .counter {
-        display: inline-block;
-        margin-top: 14px;
-      }
-
-      .variables-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .editor {
-        min-height: 390px;
-        padding: 17px;
-        font-size: 15px;
-      }
-
-      .actions {
-        align-items: stretch;
-      }
-
-      .primary-button,
-      .secondary-button {
-        flex: 1 1 145px;
-      }
-
-      .copy-option {
-        width: 100%;
-        margin: 5px 0 0;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Аргументы и техники для агентов</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+        }
+        body {
+            background: #f4f7fc;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 2rem 1rem;
+        }
+        .app {
+            max-width: 1100px;
+            width: 100%;
+        }
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 600;
+            color: #0b2b4a;
+            margin-bottom: 0.25rem;
+            letter-spacing: -0.01em;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+        .subhead {
+            color: #2c5778;
+            font-size: 1rem;
+            margin-bottom: 2rem;
+            border-left: 4px solid #3b82f6;
+            padding-left: 1rem;
+            background: #eef4ff;
+            border-radius: 0 12px 12px 0;
+            line-height: 1.5;
+            max-width: 600px;
+        }
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #dce5ef;
+            padding-bottom: 0.5rem;
+        }
+        .tab-btn {
+            background: transparent;
+            border: none;
+            padding: 0.7rem 1.8rem;
+            font-size: 1rem;
+            font-weight: 500;
+            border-radius: 40px;
+            color: #2c4a6a;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #eaf0f8;
+            border: 1px solid transparent;
+        }
+        .tab-btn.active {
+            background: #1e3b5c;
+            color: white;
+            box-shadow: 0 4px 8px rgba(0,20,40,0.12);
+            border-color: #1e3b5c;
+        }
+        .tab-btn:hover:not(.active) {
+            background: #d4e0ed;
+        }
+        .panel {
+            display: none;
+            background: white;
+            border-radius: 28px;
+            padding: 1.8rem 1.8rem 2.2rem;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.05);
+            border: 1px solid #e9edf4;
+            transition: 0.2s;
+        }
+        .panel.active {
+            display: block;
+        }
+        .selector-group {
+            margin-bottom: 2rem;
+        }
+        .selector-group label {
+            display: block;
+            font-weight: 500;
+            color: #1e3a5a;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+            letter-spacing: 0.3px;
+        }
+        .selector-group select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border-radius: 16px;
+            border: 1px solid #cfddee;
+            background: white;
+            font-size: 1rem;
+            color: #0c1f33;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%233b5a7a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1.2rem;
+            cursor: pointer;
+            transition: border 0.15s;
+        }
+        .selector-group select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.2);
+        }
+        .variables-area {
+            background: #f8faff;
+            border-radius: 20px;
+            padding: 1.2rem 1.5rem;
+            margin: 1.5rem 0 1.8rem;
+            border: 1px solid #e1eaf3;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 1rem 1.5rem;
+        }
+        .variables-area .var-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .variables-area label {
+            font-weight: 500;
+            color: #1c3e5e;
+            font-size: 0.9rem;
+        }
+        .variables-area input {
+            padding: 0.4rem 0.8rem;
+            border-radius: 40px;
+            border: 1px solid #ccdcec;
+            background: white;
+            font-size: 0.95rem;
+            min-width: 140px;
+            transition: 0.15s;
+        }
+        .variables-area input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+        }
+        .template-box {
+            background: #f2f6fe;
+            border-radius: 20px;
+            padding: 1.5rem 1.8rem;
+            border-left: 6px solid #3b82f6;
+            margin: 1rem 0 1.8rem;
+            white-space: pre-wrap;
+            word-break: break-word;
+            line-height: 1.6;
+            color: #142b40;
+            font-size: 0.98rem;
+            box-shadow: inset 0 1px 4px rgba(0,0,0,0.02);
+            max-height: 420px;
+            overflow-y: auto;
+        }
+        .action-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            justify-content: flex-start;
+            align-items: center;
+            margin-top: 0.5rem;
+        }
+        .btn {
+            background: white;
+            border: 1px solid #cbdae9;
+            padding: 0.6rem 1.6rem;
+            border-radius: 60px;
+            font-weight: 500;
+            color: #1c3f62;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.95rem;
+            background: #f2f8ff;
+        }
+        .btn-primary {
+            background: #1d3b5c;
+            border-color: #1d3b5c;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #14304d;
+            border-color: #14304d;
+            box-shadow: 0 4px 10px rgba(0,40,80,0.15);
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #b6cbdf;
+        }
+        .btn-outline:hover {
+            background: #e4edf8;
+            border-color: #8ba9c9;
+        }
+        .btn-success {
+            background: #0f3b2c;
+            border-color: #0f3b2c;
+            color: white;
+        }
+        .btn-success:hover {
+            background: #0a2f22;
+            border-color: #0a2f22;
+        }
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: #1d3b5c;
+            color: white;
+            padding: 0.9rem 1.8rem;
+            border-radius: 60px;
+            font-weight: 500;
+            box-shadow: 0 12px 25px rgba(0,0,0,0.15);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: 0.25s ease;
+            pointer-events: none;
+            font-size: 0.95rem;
+            border: 1px solid #2f5880;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .badge {
+            background: #d5e3f5;
+            color: #1e3f62;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            padding: 0.15rem 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .footer-note {
+            margin-top: 2rem;
+            color: #527594;
+            font-size: 0.9rem;
+            text-align: center;
+            border-top: 1px solid #dce5ef;
+            padding-top: 1.5rem;
+        }
+        @media (max-width: 640px) {
+            h1 { font-size: 1.8rem; }
+            .panel { padding: 1.2rem; }
+            .variables-area { flex-direction: column; align-items: stretch; }
+            .variables-area .var-item { width: 100%; }
+            .variables-area input { min-width: 100%; }
+            .template-box { padding: 1rem; }
+        }
+    </style>
 </head>
 <body>
-  <main class="shell">
-    <section class="hero">
-      <div class="hero-content">
-        <div>
-          <div class="eyebrow"><span class="eyebrow-dot"></span>Рабочая база команды</div>
-          <h1>Аргументы, выгоды и техники в одном месте</h1>
-          <p>Выберите нужный сценарий, при необходимости отредактируйте формулировку и скопируйте готовый текст одной кнопкой.</p>
-        </div>
-        <div class="hero-stat">
-          <strong id="totalCount">0</strong>
-          <span>готовых материалов для разговора</span>
-        </div>
-      </div>
-    </section>
-
-    <div id="blockTabs" class="panel block-tabs" aria-label="Быстрый выбор блока"></div>
-
-    <section class="workspace">
-      <aside class="panel controls-panel">
-        <h2 class="panel-title">Выбор материала</h2>
-        <p class="panel-subtitle">Можно выбрать через списки или найти нужную фразу поиском.</p>
-
-        <div class="search-box">
-          <svg class="search-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="m21 21-4.35-4.35m2.35-5.65a8 8 0 1 1-16 0 8 8 0 0 1 16 0Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-          <input id="searchInput" class="search-input" type="search" placeholder="Поиск по всем материалам" autocomplete="off">
-          <button id="clearSearch" class="clear-search" type="button" aria-label="Очистить поиск">×</button>
-          <div id="searchResults" class="search-results" role="listbox"></div>
-        </div>
-
-        <div class="field">
-          <label for="blockSelect">Блок</label>
-          <div class="select-wrap">
-            <select id="blockSelect"></select>
-          </div>
-        </div>
-
-        <div class="field">
-          <label for="categorySelect">Тема или ситуация</label>
-          <div class="select-wrap">
-            <select id="categorySelect"></select>
-          </div>
-        </div>
-
-        <div class="field">
-          <label for="templateSelect">Шаблон</label>
-          <div class="select-wrap">
-            <select id="templateSelect"></select>
-          </div>
-        </div>
-
-      </aside>
-
-      <article class="panel content-panel">
-        <div class="content-top">
-          <div>
-            <div class="badges">
-              <span id="blockBadge" class="badge"></span>
-              <span id="categoryBadge" class="badge category"></span>
+    <div class="app" id="app">
+        <header style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap;">
+            <div>
+                <h1>🏡 Аргументы · Техники</h1>
+                <div class="subhead">Выберите блок, шаблон, заполните переменные — и копируйте готовый текст</div>
             </div>
-            <h2 id="templateTitle" class="template-title"></h2>
-            <p id="blockDescription" class="template-description"></p>
-          </div>
-          <div id="positionCounter" class="counter"></div>
+            <span class="badge" style="margin-top: 8px;">v2.0 · для агентов</span>
+        </header>
+
+        <!-- вкладки -->
+        <div class="tabs" id="tabHeaders">
+            <button class="tab-btn active" data-tab="tab1">📋 Выгоды</button>
+            <button class="tab-btn" data-tab="tab2">⚡ Аргументация</button>
+            <button class="tab-btn" data-tab="tab3">🧠 Техники</button>
         </div>
 
-        <section id="variablesSection" class="variables">
-          <div class="variables-header">
-            <strong>Заполните переменные</strong>
-            <span>Поля появились автоматически из текста шаблона.</span>
-          </div>
-          <div id="variablesGrid" class="variables-grid"></div>
-        </section>
-
-        <div class="editor-wrap">
-          <div class="editor-label">
-            <label for="textEditor">Готовый текст</label>
-            <span>Можно отредактировать перед копированием</span>
-          </div>
-          <textarea id="textEditor" class="editor" spellcheck="true"></textarea>
+        <!-- панель 1: Выгоды -->
+        <div id="tab1" class="panel active">
+            <div class="selector-group">
+                <label for="select1">Шаблон (выгоды для продавца)</label>
+                <select id="select1"></select>
+            </div>
+            <div id="varArea1" class="variables-area"></div>
+            <div id="templateDisplay1" class="template-box">Выберите шаблон, чтобы увидеть текст</div>
+            <div class="action-bar">
+                <button class="btn btn-primary" id="copyBtn1">📋 Копировать текст</button>
+                <button class="btn btn-outline" id="resetVars1">↺ Сбросить переменные</button>
+            </div>
         </div>
 
-        <div class="actions">
-          <button id="copyButton" class="primary-button" type="button">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <rect x="8" y="8" width="11" height="11" rx="2" stroke="currentColor" stroke-width="2"/>
-              <path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-            Скопировать
-          </button>
-
-          <button id="resetButton" class="secondary-button" type="button">
-            Вернуть исходный текст
-          </button>
-
-          <label class="copy-option">
-            <input id="includeTitle" type="checkbox">
-            Добавить заголовок при копировании
-          </label>
+        <!-- панель 2: Аргументация -->
+        <div id="tab2" class="panel">
+            <div class="selector-group">
+                <label for="select2">Шаблон (аргументы)</label>
+                <select id="select2"></select>
+            </div>
+            <div id="varArea2" class="variables-area"></div>
+            <div id="templateDisplay2" class="template-box">Выберите шаблон, чтобы увидеть текст</div>
+            <div class="action-bar">
+                <button class="btn btn-primary" id="copyBtn2">📋 Копировать текст</button>
+                <button class="btn btn-outline" id="resetVars2">↺ Сбросить переменные</button>
+            </div>
         </div>
-      </article>
-    </section>
 
-    <p class="footer-note">Сайт работает без сервера и внешних библиотек. Все материалы хранятся внутри одного HTML-файла.</p>
-  </main>
-
-  <div id="toast" class="toast" role="status" aria-live="polite">
-    <span class="toast-check">✓</span>
-    <span id="toastText">Текст скопирован</span>
-  </div>
-
-  <script>
-    const LIBRARY = [{"id": "benefits", "name": "Выгоды от работы с агентом", "short": "Выгоды", "description": "Факты и преимущества работы с профессиональным агентом.", "categories": [{"name": "Контекст рынка", "items": [{"title": "Высокая ключевая ставка ЦБ", "text": "В 2026 году она остаётся повышенной, из‑за чего рыночная ипотека дорогая, а доля сделок «в кредит» сокращается. Покупатели становятся более осторожными, растёт доля расчётов наличными и альтернативных сделок (цепочки). Это повышает требования к безопасности и скорости сделки."}, {"title": "Кейс Долиной", "text": "Стал отраслевым прецедентом: суд признал сделку недействительной из‑за «порока воли» продавца (мошенники манипулировали собственником). Для рынка это сигнал: даже «чистые» на первый взгляд сделки могут быть оспорены, если есть признаки давления на продавца. Риски продавца выросли: оспаривание сделки бьёт по репутации и времени, а в сложных цепочках срывает всю сделку."}, {"title": "Тренды 2026", "text": "Акцент на безопасность, скорость, цифровые инструменты (электронные регистрации, безопасные расчёты, VR‑туры), а также на прозрачность и доказуемость всех шагов сделки."}]}, {"name": "Минимизация рисков и юридическая чистота", "items": [{"title": "Минимизация рисков в цепочке", "text": "При альтернативных сделках агент контролирует, чтобы все звенья были юридически чистыми. Ошибка в одном звене срывает всю цепочку — агенты страхуют продавца от таких ситуаций."}, {"title": "Работа с обременениями и согласиями", "text": "Агент заранее выявляет и закрывает вопросы: согласия супругов, доли несовершеннолетних, ипотеки, аресты. Продавец получает «готовый к сделке» объект, а не сюрпризы на этапе регистрации."}]}, {"name": "Скорость и предсказуемость сделки в условиях дорогого кредита", "items": [{"title": "Отсев нереальных покупателей", "text": "Из‑за высокой ставки многие претенденты не смогут получить ипотеку. Агент быстро отсеивает такие заявки и фокусируется на тех, у кого реально есть деньги или одобренная ипотека."}, {"title": "Подготовка к быстрой регистрации", "text": "Агент заранее собирает пакет документов, заказывает выписки, готовит согласие супруга/органов опеки и т. п. В результате сделка проходит быстрее, а продавец раньше получает деньги."}, {"title": "Управление ожиданиями", "text": "Агент объясняет продавцу, почему рынок стал медленнее, и формирует реалистичные сроки. Это снижает стресс и риск эмоциональных решений."}]}, {"name": "Максимизация цены и правильная стратегия продажи", "items": [{"title": "Объективная оценка и позиционирование", "text": "Агент опирается на актуальные данные по локальному рынку, учитывает состояние дома, ремонта, инфраструктуру и ликвидность. Это помогает не занизить цену из‑за паники и не завысить из‑за незнания рынка."}, {"title": "Маркетинг под целевого покупателя", "text": "Агент подбирает каналы и инструменты под сегмент: для массового сегмента — классические площадки и чаты, для премиума — 3D‑туры и точечные показы. Это увеличивает количество релевантных просмотров и конкуренцию за объект."}, {"title": "Контроль над торгами", "text": "Агент ведёт переговоры так, чтобы продавец получал максимум при минимальных уступках. Он знает типичные возражения и умеет их закрывать без потери цены."}]}, {"name": "Безопасные расчёты и контроль денег", "items": [{"title": "Инструменты расчётов", "text": "В условиях высокой ставки и осторожности покупателей агент помогает выбрать безопасный способ: аккредитив, эскроу, банковская ячейка. Это защищает и продавца, и покупателя."}, {"title": "Проверка источников средств", "text": "Агент помогает корректно оформить сделку, чтобы не было вопросов у банка и налоговой. Это особенно важно при крупных суммах и альтернативных сделках."}]}, {"name": "Цифровые инструменты и экономия времени", "items": [{"title": "Электронная регистрация", "text": "Агент организует подачу документов онлайн, что ускоряет процесс и снижает количество визитов в МФЦ."}, {"title": "Аналитика", "text": "Агент отслеживает статистику просмотров, откликов и отказов, оперативно корректирует цену или описание, чтобы быстрее выйти на сделку."}]}, {"name": "Снижение рисков мошенничества и репутационных потерь", "items": [{"title": "Фильтрация подозрительных предложений", "text": "Агент распознаёт типовые схемы: «срочно, только наличные, без проверки», «покупатель из другого города, всё дистанционно», «давайте обойдём банк». Это защищает продавца от потери времени и рисков."}, {"title": "Документирование всех этапов", "text": "Агент фиксирует переписку, договорённости, отказы, чтобы в случае спора у продавца была доказательная база."}]}, {"name": "Психологическая поддержка и управление процессом", "items": [{"title": "Снятие стресса", "text": "Продажа квартиры — эмоционально сложный процесс. Агент берёт на себя рутину, переговоры и конфликты, позволяя продавцу сосредоточиться на своих делах."}, {"title": "Единая точка контакта", "text": "Все вопросы проходят через агента: показы, звонки, документы, торги. Это избавляет продавца от информационного шума и «выгорания»."}]}]}, {"id": "arguments", "name": "Аргументация", "short": "Аргументация", "description": "Готовые формулировки для работы с возражениями собственника.", "categories": [{"name": "Про высокую ставку и «сложных» покупателей (снимает ожидание быстрых денег)", "items": [{"title": "Вариант 1", "text": "При высокой ключевой ставке 8 из 10 потенциальных покупателей, которые звонят вам — не имеют реальной возможности купить объект, они просто интересуются. Наш агент фильтрует их до первого показа: вы тратите время только на тех, у кого реально есть деньги"}, {"title": "Вариант 2", "text": "Из‑за дорогой ипотеки покупатели торгуются агрессивнее. Наш агент ведёт переговоры так, чтобы цена вашего объекта не “просела” на эмоциях"}, {"title": "Вариант 3", "text": "Рынок стал “медленным”, но наш агент ускоряет сделку за счёт того, что заранее проверит и подготовит документы, а также определит структуру расчётов"}]}, {"name": "Про цену и маркетинг (снимает страх продешевить)", "items": [{"title": "Вариант 1", "text": "Цена — это не интуиция, а данные: агент смотрит не только объявления, но и реальные сделки в вашем доме и квартале — чтобы заранее объективно оценить ситуацию"}, {"title": "Вариант 2", "text": "Ваша квартира должна конкурировать не с соседними объявлениями, а за внимание реального покупателя. Агент делает точечный маркетинг (продающее объявление, размещение в специализированных каналах, кроме Авито) и создаст конкуренцию вокруг объекта"}, {"title": "Вариант 3", "text": "Наш агент не ставит “среднюю по рынку” цену вашего объекта — он находит вашу максимальную цену, при которой сделка реально состоится, и защищает её на переговорах с потенциальным покупателем."}]}, {"name": "Про экономию времени и нервов (для занятых и тех, кто не хочет “возиться”)", "items": [{"title": "Вариант 1", "text": "Вы продаёте не только квартиру, но и своё время. Наш агент берёт на себя показы, звонки, отказы и переписку — вы получаете результат без выгорания и трудозатрат"}, {"title": "Вариант 2", "text": "Один агент вместо десяти звонков в день: он становится вашим фильтром и переговорщиком, чтобы вы могли заниматься своими делами"}, {"title": "Вариант 3", "text": "Пока вы занимаетесь работой и семьёй, агент ведёт сделку: отвечает на звонки, фильтрует запросы, организует показы, собирает документы, контролирует сроки. Вы получаете регулярные отчёты и участвуете только в ключевых решениях"}, {"title": "Вариант 4", "text": "Преимуществами нашего сотрудничества является то, что вам не обязательно быть на каждом просмотре, агент берёт всё на себя. Каждый показ будет фиксироваться, всю необходимую информацию агент вам будет сообщать и присылать в отчёте."}]}, {"name": "Про цепочки и альтернативные сделки (для сложных кейсов)", "items": [{"title": "Вариант 1", "text": "Цепочка срывается из‑за мелочей: не успели заказать выписку, не подготовили согласие супруга, банк запросил допдокументы. Агент держит весь пакет в актуальном состоянии и контролирует дедлайны, чтобы сделка шла по плану"}, {"title": "Вариант 2", "text": "В альтернативной сделке важна предсказуемость. Наш агент заранее фиксирует условия для всех участников и страхуем вас от непредвиденных обстоятельств на этапе регистрации сделки"}, {"title": "Вариант 3", "text": "Наш агент умеет упаковывать сложные сделки так, чтобы они выглядели простыми и безопасными для покупателя — и быстрее закрывались, чтобы продажа вашего объекта осуществилась быстрее"}]}, {"name": "Про упаковку объекта под целевую аудиторию", "items": [{"title": "Вариант 1", "text": "Объекты на вторичном рынке жилья продаются не “всем подряд”, а конкретным сегментам: молодым семьям, инвесторам, пенсионерам, арендаторам. Агент определяет, кто ваш покупатель, и делает фото, описание и презентацию под конкертный сегмент: для семьи — акцент на школу и двор, для инвестора — на доходность и ликвидность"}, {"title": "Вариант 2", "text": "Качественные фотографии и продающее объявление — не “красивая картинка”, а фильтр от тех, кто приходит на объект просто \"посмотреть\". Благодаря грамотно составленному объявлению, покупатель заранее видит состояние ремонта, кухни, санузла и приходит на показ только если готов реально рассматривать к покупке этот объект."}, {"title": "Вариант 3", "text": "Аналитика просмотров и отказов помогает вам и агенту оперативно корректировать стратегию: агент не ждёт “чуда”, а работает по данным, которые предоставляет вам в аналитическом отчёте на площадке Авито"}]}, {"name": "Для «скептиков» и тех, кто хочет продавать сам", "items": [{"title": "Вариант 1", "text": "Мы не навязываем услуги — мы показываем риски и экономию вашего времени и ресурсов. Выбор, конечно, остаётся за вами. Важно понимать, что для вас важнее: контроль или результат без стресса"}, {"title": "Вариант 2", "text": "При продаже вашего объекта агент не давит на скидку ради быстрой сделки. Если торг уместен — согласует его так, чтобы он был обоснован и не обесценивал ваш объект в глазах потенциальных покупателей."}, {"title": "Вариант 3", "text": "При продаже вторички покупатели чаще торгуются из‑за “возраста” дома, состояния подъезда, ремонта. Агент заранее готовит переговорную рамку: факты о доме, плюсы локации, обоснование цены и список аргументов против типичных возражений"}]}, {"name": "Про нюансы «вторички», которые убивают цену, если их не закрыть заранее", "items": [{"title": "Вариант 1", "text": "Цена объекта часто “падает” не из‑за рынка, а из‑за мелочей, которые так важны покупателю, но на которые зачастую не обращает внимание продавец: несогласованная перепланировка, старые счётчики, проблемы с управляющей компанией. Агент находит эти точки риска до выхода на рынок и правильно их упаковывает — чтобы покупатель не использовал их как повод для жёсткого торга."}, {"title": "Вариант 2", "text": "Для вторичного жилья критично не просто “показать квартиру”, а продать её историю: агент погружается в детали вашего объекта и сможет пояснить потенциальному покупателю ряд деталей, которые, на первый взгляд собственника, могут быть неважными, но станут решающими для покупателя: почему делали перепланировку, кто жил, как и кто обслуживает дом. Агент собираем эту историю и подаёт как преимущество, а не как риск."}]}, {"name": "Про локацию и «микрорынок» — почему нельзя ставить цену по соседним объявлениям", "items": [{"title": "Вариант 1", "text": "На вторичке соседние объявления часто завышены, а реальные сделки проходят с ценой гораздо ниже. Агент анализирует не только Авито и Циан, но и статистику Росреестра по вашему дому: по каким ценам реально закрывались сделки за последние 6–12 месяцев. Это даёт точную цену, при которой вы продадите быстрее и выгоднее для себя."}, {"title": "Вариант 2", "text": "Ликвидность квартиры зависит от микролокации и ряду особенностей (к примеру, шумная сторона, близость к промзоне, состояние подъезда, парковка). Агент делает акцент на плюсах объекта и компенсирует минусы через упаковку и правильный тАргетинг на целевого покупателя"}]}, {"name": "Про безопасность расчётов и защиту продавца", "items": [{"title": "Вариант 1", "text": "На вторичном рынке много схем с наличными и “быстрыми” сделками, которые выглядят выгодно, но несут риски. Агент подбирает безопасный инструмент (аккредитив, эскроу, ячейка) и фиксирует условия так, чтобы деньги поступили только после регистрации перехода права"}, {"title": "Вариант 2", "text": "Агент проверяет покупателя и источники средств, чтобы исключить риск оспаривания сделки из‑за сомнительных схем. Для вас это защита от судов и потери времени"}]}, {"name": "Хочет продавать самостоятельно", "items": [{"title": "Хочет продавать самостоятельно", "text": "«Сейчас у вас идеальные условия для продажи, так как квартира новая. Обычно собственники ждут несколько месяцев, а потом начинают снижать цену, потому что интерес падает. Я предлагаю вам попробовать участие в КС, чтобы продать быстро и дорого, не теряя времени.»"}]}, {"name": "Приходите с готовым покупателем", "items": [{"title": "Приходите с готовым покупателем", "text": "«Обычно потенциальные покупатели приходят по конкретному запросу и выбирают по объявлениям. Поэтому сначала агенту нужно увидеть вашу квартиру, чтобы грамотно составить и выставить объявление, которое привлечет этого покупателя»"}]}, {"name": "Отказ от ЭД", "items": [{"title": "Отказ от ЭД", "text": "«Предлагаем встретиться с агентом и всё обсудить. Вы просто познакомитесь и найдете точки соприкосновения. Агент расскажет вам о своих возможностях, а вы примете взвешенное решение»"}]}, {"name": "Есть свой агент", "items": [{"title": "Вариант 1", "text": "«Когда над объектом работают несколько агентов, каждый стремится заработать и начинает снижать цену. Работая с нами одними, вы получите максимальную выгоду, ежедневное продвижение и отсутствие демпинга.»"}, {"title": "Вариант 2", "text": "«Сотрудничество с нами гарантирует качественное и эффективное продвижение вашего объекта, так как мы используем лучшие инструменты Авито для максимального охвата именно вашей целевой аудитории.»"}, {"title": "Вариант 3", "text": "«Предлагаем встретиться лично с агентом. Он покажет свой детальный план продвижения, и вы сами убедитесь в преимуществах работы с ним, даже если у вас уже есть агент.»"}]}, {"name": "Есть свой потенциальный покупатель", "items": [{"title": "Есть свой потенциальный покупатель", "text": "«Какой смысл ждать? Если есть заинтересованный покупатель, лучше продать квартиру ему прямо сейчас, пока он готов к сделке, чтобы не упустить эту возможность и не потерять интерес. А мы вам в этом поможем. Агент сделает всю рутинную работу по сделке за вас и не позволит проиграть в цене»"}]}, {"name": "Высокая комиссия", "items": [{"title": "Вариант 1", "text": "«Я понимаю вашу ситуацию с покупкой нового жилья. Комиссия агента находится на среднем рыночном уровне, но вы всегда можете обсудить с ним возможные варианты и гибкие условия, чтобы вам было финансово комфортно.»"}, {"title": "Вариант 2", "text": "«Работая с агентом вы получите только целевые звонки: агент отсекает порядка 80% неэффективных обращений, что позволяет выйти на сделку в короткие сроки».\n\n«Те, кто называет низкую комиссию, потом часто озвучивают новые скрытые суммы. У наших партнеров комиссия фиксированная, без каких-либо доплат, и вы платите только по факту продажи. Взаимодействие всегда можно выстроить гибко и договориться лично с агентом обо всех условиях.»"}, {"title": "Вариант 3", "text": "«Агент является первоисточником покупателей через Авито, где проходит основной поток сделок. Он полностью берет на себя все хлопоты: рекламу, звонки и показы. Вы можете просто передать ключи, и агент проведет сделку максимально комфортно, даже дистанционно.»"}, {"title": "Вариант 4", "text": "«На какую комиссию вы были бы согласны? Продажа с агентом избавит вас от бесконечных звонков. Вы передаете ключи,он организует все сам и может провести сделку даже дистанционно, чтобы для вас это осталось приятным воспоминанием.»"}]}]}, {"id": "techniques", "name": "Техники", "short": "Техники", "description": "Подходы и сценарии, которые помогают выстроить диалог.", "categories": [{"name": "Техника «Экономика скрытых издержек» (для скептиков и тех, кто хочет продавать сам)", "items": [{"title": "Техника «Экономика скрытых издержек» (для скептиков и тех, кто хочет продавать сам)", "text": "Суть: показать, сколько денег и времени собственник реально теряет при самостоятельной продаже, особенно на вторичке.\n\nЧто считать:\n\nПотеря на цене: средний торг при отсутствии переговорной позиции (100–300 тыс. ₽ и выше).\nПросрочка сделки: каждый месяц простоя = упущенная выгода (альтернативная доходность депозита, аренда, платежи по ипотеке).\nВремя и стресс: стоимость часов собственника, визиты, показы, отказы, переписка.\nЮридические риски: потенциальный срыв сделки или оспаривание (стоимость судов, репутационные потери).\n\nПример формулировки: «По нашей статистике, при самостоятельной продаже собственники теряют в среднем от 200 тысяч рублей на цене и 1–2 месяца на сделке. Давайте посчитаем, сколько это стоит лично вам, и сравним с нашим сопровождением»."}]}, {"name": "«Микро-кейс вместо общей статистики»", "items": [{"title": "«Микро-кейс вместо общей статистики»", "text": "Вместо абстрактных цифр («агент продаёт быстрее») приводите конкретный, очень похожий пример из вашей базы или базы партнёра. Например: «Я недавно работал с собственником из вашего же дома — у него была двушка в таком же состоянии. Мы за месяц нашли покупателя, который взял квартиру чуть выше вашей текущей цены, потому что агент сразу подготовил сильные фото и отработал возражения по планировке». Это создаёт эффект релевантности и снижает скепсис: человек видит, что вы понимаете его ситуацию."}]}, {"name": "Техника «Вопрос-мост»", "items": [{"title": "Техника «Вопрос-мост»", "text": "Задавайте вопросы, которые не просто выявляют проблему, а подводят к мысли о ценности следующего шага. Вместо «Хотите работать с агентом?» используйте:\n\n«Что для вас сейчас самое сложное в продаже?» (выявляет боль)\n\n«Как думаете, сколько ещё показов вам понадобится, чтобы найти подходящего покупателя?» (подталкивает к рефлексии).\nТакой подход делает разговор диалогом, а не монологом о продаже."}]}, {"name": "«Путь клиента»", "items": [{"title": "«Путь клиента»", "text": "Вместо фокуса на услугах агента расскажите историю:\n\n«Многие собственники сначала боятся, что агент будет давить или возьмёт слишком много. Но на практике всё иначе: сначала агент проводит оценку, потом вместе с вами составляет маркетинговый план, и только если вы оба видите, что цена завышена — мы корректируем её. Хотите пройти этот путь вместе, чтобы понять, как лучше действовать?»\n\nЭто снижает тревожность, показывая, что процесс прозрачный и совместный."}]}, {"name": "Техника «Анти‑презентация: что НЕ будет делать агент»", "items": [{"title": "Техника «Анти‑презентация: что НЕ будет делать агент»", "text": "Смысл: люди устали от обещаний «мы всё сделаем». Работает обратное: честно назвать, чего агент делать не будет — это сразу повышает доверие.\n\nКак работает: вы заранее снимаете главные страхи собственника («будут давить на цену», «будут спамить звонками», «будут навязывать»).\n\n«Сразу скажу, чего мы точно не будем делать: не будем давить на снижение цены без реальных данных, не будем просить вас быть на связи 24/7. Агент будет работать по чёткому плану и выходить к вам только по ключевым вопросам»\n\nЭто не «продающая речь», а управление ожиданиями. Собственник сразу чувствует, что его границы уважают."}]}, {"name": "Техника «Агенты как сервис по задачам» - один специалист вместо нескольких.", "items": [{"title": "Техника «Агенты как сервис по задачам» - один специалист вместо нескольких.", "text": "Смысл: вместо «под каждую задачу у нас есть свой специалист» - предоставляет одного специалиста. Это показывает универсальный подход к работе\n\nПримеры задач и ролей:\n\n«Проверка документов и безопасность» — агент с юридическим бэкграундом.\n«Альтернативные сделки и цепочки» — агент со своей базой и опытом синхронизации.\n«Премиум‑упаковка и таргетинг» — агент по высокобюджетным объектам.\n\n«У нас один агент на все случаи. Вам не нужно 2–3 специалиста под разные задачи: один по безопасности сделки, второй по альтернативным сделкам, третий по маркетингу. Вы выбираете одного специалиста, который полностью закрывает все ваши задачи.»\n\nСобственник чувствует выгоду и видит, что его задачи может закрыть один профессиональный агент."}]}]}];
-
-    const elements = {
-      totalCount: document.getElementById("totalCount"),
-      blockSelect: document.getElementById("blockSelect"),
-      categorySelect: document.getElementById("categorySelect"),
-      templateSelect: document.getElementById("templateSelect"),
-      blockTabs: document.getElementById("blockTabs"),
-      blockBadge: document.getElementById("blockBadge"),
-      categoryBadge: document.getElementById("categoryBadge"),
-      templateTitle: document.getElementById("templateTitle"),
-      blockDescription: document.getElementById("blockDescription"),
-      positionCounter: document.getElementById("positionCounter"),
-      variablesSection: document.getElementById("variablesSection"),
-      variablesGrid: document.getElementById("variablesGrid"),
-      textEditor: document.getElementById("textEditor"),
-      copyButton: document.getElementById("copyButton"),
-      resetButton: document.getElementById("resetButton"),
-      includeTitle: document.getElementById("includeTitle"),
-      searchInput: document.getElementById("searchInput"),
-      clearSearch: document.getElementById("clearSearch"),
-      searchResults: document.getElementById("searchResults"),
-      toast: document.getElementById("toast"),
-      toastText: document.getElementById("toastText"),
-    };
-
-    const savedState = JSON.parse(localStorage.getItem("argumentationLibraryState") || "{}");
-
-    const state = {
-      blockIndex: Number.isInteger(savedState.blockIndex) ? savedState.blockIndex : 0,
-      categoryIndex: Number.isInteger(savedState.categoryIndex) ? savedState.categoryIndex : 0,
-      templateIndex: Number.isInteger(savedState.templateIndex) ? savedState.templateIndex : 0,
-      variables: {},
-      baseText: "",
-    };
-
-    function saveState() {
-      localStorage.setItem("argumentationLibraryState", JSON.stringify({
-        blockIndex: state.blockIndex,
-        categoryIndex: state.categoryIndex,
-        templateIndex: state.templateIndex,
-      }));
-    }
-
-    function escapeHtml(value) {
-      return String(value)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-    }
-
-    function getCurrentBlock() {
-      return LIBRARY[state.blockIndex];
-    }
-
-    function getCurrentCategory() {
-      return getCurrentBlock().categories[state.categoryIndex];
-    }
-
-    function getCurrentTemplate() {
-      return getCurrentCategory().items[state.templateIndex];
-    }
-
-    function countBlockItems(block) {
-      return block.categories.reduce((sum, category) => sum + category.items.length, 0);
-    }
-
-    function totalItems() {
-      return LIBRARY.reduce((sum, block) => sum + countBlockItems(block), 0);
-    }
-
-    function flattenLibrary() {
-      const result = [];
-      LIBRARY.forEach((block, blockIndex) => {
-        block.categories.forEach((category, categoryIndex) => {
-          category.items.forEach((item, templateIndex) => {
-            result.push({
-              block,
-              category,
-              item,
-              blockIndex,
-              categoryIndex,
-              templateIndex,
-            });
-          });
-        });
-      });
-      return result;
-    }
-
-    function globalPosition() {
-      let position = 0;
-      for (let blockIndex = 0; blockIndex < LIBRARY.length; blockIndex++) {
-        const block = LIBRARY[blockIndex];
-        for (let categoryIndex = 0; categoryIndex < block.categories.length; categoryIndex++) {
-          const category = block.categories[categoryIndex];
-          for (let templateIndex = 0; templateIndex < category.items.length; templateIndex++) {
-            position += 1;
-            if (
-              blockIndex === state.blockIndex &&
-              categoryIndex === state.categoryIndex &&
-              templateIndex === state.templateIndex
-            ) {
-              return position;
-            }
-          }
-        }
-      }
-      return 1;
-    }
-
-    function fillSelect(select, options, selectedIndex, labelGetter) {
-      select.innerHTML = options.map((option, index) =>
-        `<option value="${index}" ${index === selectedIndex ? "selected" : ""}>${escapeHtml(labelGetter(option, index))}</option>`
-      ).join("");
-    }
-
-    function renderBlockTabs() {
-      elements.blockTabs.innerHTML = LIBRARY.map((block, index) => `
-        <button class="block-tab ${index === state.blockIndex ? "active" : ""}" type="button" data-block-index="${index}">
-          <span class="block-tab-label">${escapeHtml(block.short)}</span>
-        </button>
-      `).join("");
-
-      elements.blockTabs.querySelectorAll(".block-tab").forEach(button => {
-        button.addEventListener("click", () => {
-          state.blockIndex = Number(button.dataset.blockIndex);
-          state.categoryIndex = 0;
-          state.templateIndex = 0;
-          renderAll();
-        });
-      });
-    }
-
-    function extractVariables(text) {
-      const patterns = [
-        /\{\{\s*([^{}]+?)\s*\}\}/g,
-        /\{\s*([^{}]+?)\s*\}/g,
-        /\[\[\s*([^\[\]]+?)\s*\]\]/g,
-        /<<\s*([^<>]+?)\s*>>/g,
-        /%\s*([^%\n]+?)\s*%/g,
-      ];
-
-      const found = [];
-      const seen = new Set();
-
-      patterns.forEach(pattern => {
-        let match;
-        while ((match = pattern.exec(text)) !== null) {
-          const name = match[1].trim();
-          const normalized = name.toLocaleLowerCase("ru");
-          if (name && !seen.has(normalized)) {
-            seen.add(normalized);
-            found.push({ name, token: match[0] });
-          }
-        }
-      });
-
-      return found;
-    }
-
-    function applyVariables(text) {
-      let result = text;
-      const variables = extractVariables(state.baseText);
-
-      variables.forEach(variable => {
-        const value = state.variables[variable.name] || variable.token;
-        result = result.split(variable.token).join(value);
-      });
-
-      return result;
-    }
-
-    function renderVariables() {
-      const variables = extractVariables(state.baseText);
-      elements.variablesGrid.innerHTML = "";
-
-      if (!variables.length) {
-        elements.variablesSection.classList.remove("visible");
-        return;
-      }
-
-      elements.variablesSection.classList.add("visible");
-
-      variables.forEach(variable => {
-        const wrapper = document.createElement("div");
-        wrapper.className = "variable-field";
-
-        const label = document.createElement("label");
-        label.textContent = variable.name;
-
-        const input = document.createElement("input");
-        input.className = "variable-input";
-        input.type = "text";
-        input.placeholder = `Введите: ${variable.name}`;
-        input.value = state.variables[variable.name] || "";
-        input.dataset.variable = variable.name;
-
-        input.addEventListener("input", () => {
-          state.variables[variable.name] = input.value;
-          elements.textEditor.value = applyVariables(state.baseText);
-        });
-
-        wrapper.append(label, input);
-        elements.variablesGrid.appendChild(wrapper);
-      });
-    }
-
-    function renderSelectors() {
-      const block = getCurrentBlock();
-
-      if (state.categoryIndex >= block.categories.length) state.categoryIndex = 0;
-      const category = getCurrentCategory();
-      if (state.templateIndex >= category.items.length) state.templateIndex = 0;
-
-      fillSelect(elements.blockSelect, LIBRARY, state.blockIndex, blockOption =>
-        blockOption.name
-      );
-
-      fillSelect(elements.categorySelect, block.categories, state.categoryIndex, categoryOption =>
-        categoryOption.name
-      );
-
-      fillSelect(elements.templateSelect, category.items, state.templateIndex, item =>
-        item.title
-      );
-    }
-
-    function renderContent() {
-      const block = getCurrentBlock();
-      const category = getCurrentCategory();
-      const template = getCurrentTemplate();
-
-      state.baseText = template.text;
-      state.variables = {};
-
-      elements.blockBadge.textContent = block.short;
-      elements.categoryBadge.textContent = category.name;
-      elements.templateTitle.textContent = template.title;
-      elements.blockDescription.textContent = block.description;
-      elements.positionCounter.textContent = `${globalPosition()} из ${totalItems()}`;
-      elements.textEditor.value = template.text;
-
-      renderVariables();
-      saveState();
-    }
-
-    function renderAll() {
-      renderSelectors();
-      renderBlockTabs();
-      renderContent();
-    }
-
-    function showToast(message) {
-      elements.toastText.textContent = message;
-      elements.toast.classList.add("show");
-      clearTimeout(showToast.timer);
-      showToast.timer = setTimeout(() => elements.toast.classList.remove("show"), 1800);
-    }
-
-    async function copyText() {
-      const template = getCurrentTemplate();
-      const body = elements.textEditor.value.trim();
-      const text = elements.includeTitle.checked
-        ? `${template.title}\n\n${body}`
-        : body;
-
-      if (!text) {
-        showToast("Нет текста для копирования");
-        return;
-      }
-
-      try {
-        await navigator.clipboard.writeText(text);
-      } catch (error) {
-        const helper = document.createElement("textarea");
-        helper.value = text;
-        helper.style.position = "fixed";
-        helper.style.opacity = "0";
-        document.body.appendChild(helper);
-        helper.select();
-        document.execCommand("copy");
-        helper.remove();
-      }
-
-      const originalLabel = elements.copyButton.innerHTML;
-      elements.copyButton.innerHTML = "✓ Скопировано";
-      showToast("Текст скопирован");
-      setTimeout(() => {
-        elements.copyButton.innerHTML = originalLabel;
-      }, 1200);
-    }
-
-    function resetText() {
-      elements.textEditor.value = applyVariables(state.baseText);
-      showToast("Исходный текст восстановлен");
-    }
-
-    function performSearch(query) {
-      const normalizedQuery = query.trim().toLocaleLowerCase("ru");
-
-      if (normalizedQuery.length < 2) {
-        elements.searchResults.classList.remove("visible");
-        elements.searchResults.innerHTML = "";
-        return;
-      }
-
-      const results = flattenLibrary()
-        .filter(entry => {
-          const haystack = [
-            entry.block.name,
-            entry.category.name,
-            entry.item.title,
-            entry.item.text,
-          ].join(" ").toLocaleLowerCase("ru");
-          return haystack.includes(normalizedQuery);
-        })
-        .slice(0, 10);
-
-      if (!results.length) {
-        elements.searchResults.innerHTML = `<div class="empty-search">Ничего не найдено</div>`;
-        elements.searchResults.classList.add("visible");
-        return;
-      }
-
-      elements.searchResults.innerHTML = results.map((entry, index) => {
-        const preview = entry.item.text.replace(/\s+/g, " ").slice(0, 105);
-        return `
-          <button class="search-result" type="button" data-result-index="${index}">
-            <strong>${escapeHtml(entry.item.title)}</strong>
-            <span>${escapeHtml(entry.block.short)} · ${escapeHtml(entry.category.name)}<br>${escapeHtml(preview)}${entry.item.text.length > 105 ? "…" : ""}</span>
-          </button>
-        `;
-      }).join("");
-
-      elements.searchResults.classList.add("visible");
-
-      elements.searchResults.querySelectorAll(".search-result").forEach(button => {
-        button.addEventListener("click", () => {
-          const entry = results[Number(button.dataset.resultIndex)];
-          state.blockIndex = entry.blockIndex;
-          state.categoryIndex = entry.categoryIndex;
-          state.templateIndex = entry.templateIndex;
-          elements.searchInput.value = "";
-          elements.searchResults.classList.remove("visible");
-          renderAll();
-        });
-      });
-    }
-
-    elements.blockSelect.addEventListener("change", event => {
-      state.blockIndex = Number(event.target.value);
-      state.categoryIndex = 0;
-      state.templateIndex = 0;
-      renderAll();
-    });
-
-    elements.categorySelect.addEventListener("change", event => {
-      state.categoryIndex = Number(event.target.value);
-      state.templateIndex = 0;
-      renderAll();
-    });
-
-    elements.templateSelect.addEventListener("change", event => {
-      state.templateIndex = Number(event.target.value);
-      renderAll();
-    });
-
-    elements.copyButton.addEventListener("click", copyText);
-    elements.resetButton.addEventListener("click", resetText);
-
-    elements.searchInput.addEventListener("input", event => performSearch(event.target.value));
-    elements.searchInput.addEventListener("focus", event => performSearch(event.target.value));
-
-    elements.clearSearch.addEventListener("click", () => {
-      elements.searchInput.value = "";
-      elements.searchResults.classList.remove("visible");
-      elements.searchInput.focus();
-    });
-
-    document.addEventListener("click", event => {
-      if (!event.target.closest(".search-box")) {
-        elements.searchResults.classList.remove("visible");
-      }
-    });
-
-    document.addEventListener("keydown", event => {
-      if ((event.ctrlKey || event.metaKey) && event.key.toLocaleLowerCase("ru") === "k") {
-        event.preventDefault();
-        elements.searchInput.focus();
-      }
-    });
-
-    elements.totalCount.textContent = totalItems();
-    renderAll();
-  </script>
-</body>
-</html>
+        <!-- панель 3: Техники -->
+        <div id="tab3" class="panel">
+            <div class="selector-group">
+                <label for="select3">Шаблон (техники)</label>
+                <select id="select3"></select>
+            </div>
+            <div id="varArea3" class="variables-area"></div>
+            <div id="templateDisplay3" class="template-box">Выберите шаблон, чтобы увидеть текст</div>
+            <div class="action-bar">
+                <button class="btn btn-primary" id="copyBtn3">📋 Копировать текст</button>
+                <button class="btn btn-outline" id="resetVars3">↺ Сбросить переменные</button>
+            </div>
+        </div>
+
+        <div class="footer-note">🔹 В переменных подставьте имя, адрес или другие данные — они заменятся в тексте</div>
+    </div>
+
+    <div id="toast" class="toast">✅ Скопировано в буфер</div>
+
+    <script>
+        (function() {
+            // ---------- ДАННЫЕ (из файла) ----------
+            // лист 1: Выгоды
+            const templates1 = [
+                { title: "Минимизация рисков в цепочке", text: "При альтернативных сделках агент контролирует, чтобы все звенья были юридически чистыми. Ошибка в одном звене срывает всю цепочку — агенты страхуют продавца от таких ситуаций." },
+                { title: "Работа с обременениями и согласиями", text: "Агент заранее выявляет и закрывает вопросы: согласия супругов, доли несовершеннолетних, ипотеки, аресты. Продавец получает «готовый к сделке» объект, а не сюрпризы на этапе регистрации." },
+                { title: "Отсев нереальных покупателей", text: "Из‑за высокой ставки многие претенденты не смогут получить ипотеку. Агент быстро отсеивает такие заявки и фокусируется на тех, у кого реально есть деньги или одобренная ипотека." },
+                { title: "Подготовка к быстрой регистрации", text: "Агент заранее собирает пакет документов, заказывает выписки, готовит согласие супруга/органов опеки и т. п. В результате сделка проходит быстрее, а продавец раньше получает деньги." },
+                { title: "Управление ожиданиями", text: "Агент объясняет продавцу, почему рынок стал медленнее, и формирует реалистичные сроки. Это снижает стресс и риск эмоциональных решений." },
+                { title: "Объективная оценка и позиционирование", text: "Агент опирается на актуальные данные по локальному рынку, учитывает состояние дома, ремонта, инфраструктуру и ликвидность. Это помогает не занизить цену из‑за паники и не завысить из‑за незнания рынка." },
+                { title: "Маркетинг под целевого покупателя", text: "Агент подбирает каналы и инструменты под сегмент: для массового сегмента — классические площадки и чаты, для премиума — 3D‑туры и точечные показы. Это увеличивает количество релевантных просмотров и конкуренцию за объект." },
+                { title: "Контроль над торгами", text: "Агент ведёт переговоры так, чтобы продавец получал максимум при минимальных уступках. Он знает типичные возражения и умеет их закрывать без потери цены." },
+                { title: "Инструменты расчётов", text: "В условиях высокой ставки и осторожности покупателей агент помогает выбрать безопасный способ: аккредитив, эскроу, банковская ячейка. Это защищает и продавца, и покупателя." },
+                { title: "Проверка источников средств", text: "Агент помогает корректно оформить сделку, чтобы не было вопросов у банка и налоговой. Это особенно важно при крупных суммах и альтернативных сделках." },
+                { title: "Электронная регистрация", text: "Агент организует подачу документов онлайн, что ускоряет процесс и снижает количество визитов в МФЦ." },
+                { title: "Аналитика", text: "Агент отслеживает статистику просмотров, откликов и отказов, оперативно корректирует цену или описание, чтобы быстрее выйти на сделку." },
+                { title: "Фильтрация подозрительных предложений", text: "Агент распознаёт типовые схемы: «срочно, только наличные, без проверки», «покупатель из другого города, всё дистанционно», «давайте обойдём банк». Это защищает продавца от потери времени и рисков." },
+                { title: "Документирование всех этапов", text: "Агент фиксирует переписку, договорённости, отказы, чтобы в случае спора у продавца была доказательная база." },
+                { title: "Снятие стресса", text: "Продажа квартиры — эмоционально сложный процесс. Агент берёт на себя рутину, переговоры и конфликты, позволяя продавцу сосредоточиться на своих делах." },
+                { title: "Единая точка контакта", text: "Все вопросы проходят через агента: показы, звонки, документы, торги. Это избавляет продавца от информационного шума и «выгорания»." }
+            ];
+
+            // лист 2: Аргументация (с переменными)
+            const templates2 = [
+                { title: "Высокая ставка — фильтрация", text: "При высокой ключевой ставке 8 из 10 потенциальных покупателей, которые звонят вам — не имеют реальной возможности купить объект, они просто интересуются. Наш агент фильтрует их до первого показа: вы тратите время только на тех, у кого реально есть деньги" },
+                { title: "Высокая ставка — переговоры", text: "Из‑за дорогой ипотеки покупатели торгуются агрессивнее. Наш агент ведёт переговоры так, чтобы цена вашего объекта не “просела” на эмоциях" },
+                { title: "Медленный рынок — ускорение", text: "Рынок стал “медленным”, но наш агент ускоряет сделку за счёт того, что заранее проверит и подготовит документы, а также определит структуру расчётов" },
+                { title: "Цена — данные, а не интуиция", text: "Цена — это не интуиция, а данные: агент смотрит не только объявления, но и реальные сделки в вашем доме и квартале — чтобы заранее объективно оценить ситуацию" },
+                { title: "Точечный маркетинг", text: "Ваша квартира должна конкурировать не с соседними объявлениями, а за внимание реального покупателя. Агент делает точечный маркетинг (продающее объявление, размещение в специализированных каналах, кроме Авито) и создаст конкуренцию вокруг объекта" },
+                { title: "Максимальная цена", text: "Наш агент не ставит “среднюю по рынку” цену вашего объекта — он находит вашу максимальную цену, при которой сделка реально состоится, и защищает её на переговорах с потенциальным покупателем." },
+                { title: "Экономия времени и нервов", text: "Вы продаёте не только квартиру, но и своё время. Наш агент берёт на себя показы, звонки, отказы и переписку — вы получаете результат без выгорания и трудозатрат" },
+                { title: "Один агент вместо десяти", text: "Один агент вместо десяти звонков в день: он становится вашим фильтром и переговорщиком, чтобы вы могли заниматься своими делами" },
+                { title: "Агент ведёт сделку", text: "Пока вы занимаетесь работой и семьёй, агент ведёт сделку: отвечает на звонки, фильтрует запросы, организует показы, собирает документы, контролирует сроки. Вы получаете регулярные отчёты и участвуете только в ключевых решениях" },
+                { title: "Не нужно быть на каждом показе", text: "Преимуществами нашего сотрудничества является то, что вам не обязательно быть на каждом просмотре, агент берёт всё на себя. Каждый показ будет фиксироваться, всю необходимую информацию агент вам будет сообщать и присылать в отчёте." },
+                { title: "Цепочка — контроль дедлайнов", text: "Цепочка срывается из‑за мелочей: не успели заказать выписку, не подготовили согласие супруга, банк запросил допдокументы. Агент держит весь пакет в актуальном состоянии и контролирует дедлайны, чтобы сделка шла по плану" },
+                { title: "Альтернативная сделка — предсказуемость", text: "В альтернативной сделке важна предсказуемость. Наш агент заранее фиксирует условия для всех участников и страхуем вас от непредвиденных обстоятельств на этапе регистрации сделки" },
+                { title: "Упаковка сложных сделок", text: "Наш агент умеет упаковывать сложные сделки так, чтобы они выглядели простыми и безопасными для покупателя — и быстрее закрывались, чтобы продажа вашего объекта осуществилась быстрее" },
+                { title: "Упаковка под сегмент", text: "Объекты на вторичном рынке жилья продаются не “всем подряд”, а конкретным сегментам: молодым семьям, инвесторам, пенсионерам, арендаторам. Агент определяет, кто ваш покупатель, и делает фото, описание и презентацию под конкертный сегмент: для семьи — акцент на школу и двор, для инвестора — на доходность и ликвидность" },
+                { title: "Фото и объявление как фильтр", text: "Качественные фотографии и продающее объявление — не “красивая картинка”, а фильтр от тех, кто приходит на объект просто 'посмотреть'. Благодаря грамотно составленному объявлению, покупатель заранее видит состояние ремонта, кухни, санузла и приходит на показ только если готов реально рассматривать к покупке этот объект." },
+                { title: "Аналитика отказов", text: "Аналитика просмотров и отказов помогает вам и агенту оперативно корректировать стратегию: агент не ждёт “чуда”, а работает по данным, которые предоставляет вам в аналитическом отчёте на площадке Авито" },
+                { title: "Для скептиков — не навязываем", text: "Мы не навязываем услуги — мы показываем риски и экономию вашего времени и ресурсов. Выбор, конечно, остаётся за вами. Важно понимать, что для вас важнее: контроль или результат без стресса" },
+                { title: "Не давим на скидку", text: "При продаже вашего объекта агент не давит на скидку ради быстрой сделки. Если торг уместен — согласует его так, чтобы он был обоснован и не обесценивал ваш объект в глазах потенциальных покупателей." },
+                { title: "Переговорная рамка для вторички", text: "При продаже вторички покупатели чаще торгуются из‑за “возраста” дома, состояния подъезда, ремонта. Агент заранее готовит переговорную рамку: факты о доме, плюсы локации, обоснование цены и список аргументов против типичных возражений" },
+                { title: "Цена падает из‑за мелочей", text: "Цена объекта часто “падает” не из‑за рынка, а из‑за мелочей, которые так важны покупателю, но на которые зачастую не обращает внимание продавец: несогласованная перепланировка, старые счётчики, проблемы с управляющей компанией. Агент находит эти точки риска до выхода на рынок и правильно их упаковывает — чтобы покупатель не использовал их как повод для жёсткого торга." },
+                { title: "Продать историю квартиры", text: "Для вторичного жилья критично не просто “показать квартиру”, а продать её историю: агент погружается в детали вашего объекта и сможет пояснить потенциальному покупателю ряд деталей, которые, на первый взгляд собственника, могут быть неважными, но станут решающими для покупателя: почему делали перепланировку, кто жил, как и кто обслуживает дом. Агент собираем эту историю и подаёт как преимущество, а не как риск." },
+                { title: "Анализ Росреестра, а не соседи", text: "На вторичке соседние объявления часто завышены, а реальные сделки проходят с ценой гораздо ниже. Агент анализирует не только Авито и Циан, но и статистику Росреестра по вашему дому: по каким ценам реально закрывались сделки за последние 6–12 месяцев. Это даёт точную цену, при которой вы продадите быстрее и выгоднее для себя." },
+                { title: "Микролокация и компенсация", text: "Ликвидность квартиры зависит от микролокации и ряду особенностей (к примеру, шумная сторона, близость к промзоне, состояние подъезда, парковка). Агент делает акцент на плюсах объекта и компенсирует минусы через упаковку и правильный тАргетинг на целевого покупателя" },
+                { title: "Безопасные расчёты", text: "На вторичном рынке много схем с наличными и “быстрыми” сделками, которые выглядят выгодно, но несут риски. Агент подбирает безопасный инструмент (аккредитив, эскроу, ячейка) и фиксирует условия так, чтобы деньги поступили только после регистрации перехода права" },
+                { title: "Проверка покупателя", text: "Агент проверяет покупателя и источники средств, чтобы исключить риск оспаривания сделки из‑за сомнительных схем. Для вас это защита от судов и потери времени" },
+                { title: "Идеальные условия для продажи", text: "«Сейчас у вас идеальные условия для продажи, так как квартира новая. Обычно собственники ждут несколько месяцев, а потом начинают снижать цену, потому что интерес падает. Я предлагаю вам попробовать участие в КС, чтобы продать быстро и дорого, не теряя времени.»" },
+                { title: "Приходят с готовым покупателем", text: "«Обычно потенциальные покупатели приходят по конкретному запросу и выбирают по объявлениям. Поэтому сначала агенту нужно увидеть вашу квартиру, чтобы грамотно составить и выставить объявление, которое привлечет этого покупателя»" },
+                { title: "Отказ от ЭД — встреча", text: "«Предлагаем встретиться с агентом и всё обсудить. Вы просто познакомитесь и найдете точки соприкосновения. Агент расскажет вам о своих возможностях, а вы примете взвешенное решение»" },
+                { title: "Есть свой агент — работа с нами", text: "«Когда над объектом работают несколько агентов, каждый стремится заработать и начинает снижать цену. Работая с нами одними, вы получите максимальную выгоду, ежедневное продвижение и отсутствие демпинга.»" },
+                { title: "Сотрудничество с нами — инструменты", text: "«Сотрудничество с нами гарантирует качественное и эффективное продвижение вашего объекта, так как мы используем лучшие инструменты Авито для максимального охвата именно вашей целевой аудитории.»" },
+                { title: "Встреча с агентом, даже если есть агент", text: "«Предлагаем встретиться лично с агентом. Он покажет свой детальный план продвижения, и вы сами убедитесь в преимуществах работы с ним, даже если у вас уже есть агент.»" },
+                { title: "Есть свой покупатель — не ждать", text: "«Какой смысл ждать? Если есть заинтересованный покупатель, лучше продать квартиру ему прямо сейчас, пока он готов к сделке, чтобы не упустить эту возможность и не потерять интерес. А мы вам в этом поможем. Агент сделает всю рутинную работу по сделке за вас и не позволит проиграть в цене»" },
+                { title: "Высокая комиссия — гибкость", text: "«Я понимаю вашу ситуацию с покупкой нового жилья. Комиссия агента находится на среднем рыночном уровне, но вы всегда можете обсудить с ним возможные варианты и гибкие условия, чтобы вам было финансово комфортно.»" },
+                { title: "Комиссия и целевые звонки", text: "«Работая с агентом вы получите только целевые звонки: агент отсекает порядка 80% неэффективных обращений, что позволяет выйти на сделку в короткие сроки». «Те, кто называет низкую комиссию, потом часто озвучивают новые скрытые суммы. У наших партнеров комиссия фиксированная, без каких-либо доплат, и вы платите только по факту продажи. Взаимодействие всегда можно выстроить гибко и договориться лично с агентом обо всех условиях.»" },
+                { title: "Агент — первоисточник через Авито", text: "«Агент является первоисточником покупателей через Авито, где проходит основной поток сделок. Он полностью берет на себя все хлопоты: рекламу, звонки и показы. Вы можете просто передать ключи, и агент проведет сделку максимально комфортно, даже дистанционно.»" },
+                { title: "Комиссия — ваше предложение", text: "«На какую комиссию вы были бы согласны? Продажа с агентом избавит вас от бесконечных звонков. Вы передаете ключи, он организует все сам и может провести сделку даже дистанционно, чтобы для вас это осталось приятным воспоминанием.»" }
+            ];
+
+            // лист 3: Техники (с переменными)
+            const templates3 = [
+                { title: "Экономика скрытых издержек", text: "По нашей статистике, при самостоятельной продаже собственники теряют в среднем от 200 тысяч рублей на цене и 1–2 месяца на сделке. Давайте посчитаем, сколько это стоит лично вам, и сравним с нашим сопровождением." },
+                { title: "Микро-кейс вместо статистики", text: "Я недавно работал с собственником из вашего же дома — у него была двушка в таком же состоянии. Мы за месяц нашли покупателя, который взял квартиру чуть выше вашей текущей цены, потому что агент сразу подготовил сильные фото и отработал возражения по планировке." },
+                { title: "Вопрос-мост: что сложно?", text: "«Что для вас сейчас самое сложное в продаже?» (выявляет боль)" },
+                { title: "Вопрос-мост: сколько показов?", text: "«Как думаете, сколько ещё показов вам понадобится, чтобы найти подходящего покупателя?» (подталкивает к рефлексии)" },
+                { title: "Путь клиента", text: "Многие собственники сначала боятся, что агент будет давить или возьмёт слишком много. Но на практике всё иначе: сначала агент проводит оценку, потом вместе с вами составляет маркетинговый план, и только если вы оба видите, что цена завышена — мы корректируем её. Хотите пройти этот путь вместе, чтобы понять, как лучше действовать?" },
+                { title: "Анти‑презентация: что НЕ будет делать агент", text: "Сразу скажу, чего мы точно не будем делать: не будем давить на снижение цены без реальных данных, не будем просить вас быть на связи 24/7. Агент будет работать по чёткому плану и выходить к вам только по ключевым вопросам." },
+                { title: "Агенты как сервис по задачам", text: "У нас один агент на все случаи. Вам не нужно 2–3 специалиста под разные задачи: один по безопасности сделки, второй по альтернативным сделкам, третий по маркетингу. Вы выбираете одного специалиста, который полностью закрывает все ваши задачи." }
+            ];
+
+            // ---------- состояние ----------
+            const state = {
+                vars: {
+                    tab1: { name: '', address: '' },
+                    tab2: { name: '', address: '' },
+                    tab3: { name: '', address: '' }
+                },
+                selected: { tab1: 0, tab2: 0, tab3: 0 }
+            };
+
+            // ---------- helpers ----------
+            function getTemplateText(tabKey, index) {
+                const list = tabKey === 'tab1' ? templates
