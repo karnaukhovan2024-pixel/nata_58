@@ -418,4 +418,177 @@
 
             // ---------- helpers ----------
             function getTemplateText(tabKey, index) {
-                const list = tabKey === 'tab1' ? templates
+                const list = tabKey === 'tab1' ? templates1 : tabKey === 'tab2' ? templates2 : templates3;
+                return list[index]?.text || '';
+            }
+
+            function getTemplateTitle(tabKey, index) {
+                const list = tabKey === 'tab1' ? templates1 : tabKey === 'tab2' ? templates2 : templates3;
+                return list[index]?.title || '';
+            }
+
+            function replaceVars(text, vars) {
+                let result = text;
+                result = result.replace(/\{name\}/gi, vars.name || '');
+                result = result.replace(/\{адрес\}/gi, vars.address || '');
+                result = result.replace(/\{address\}/gi, vars.address || '');
+                // дополнительные
+                result = result.replace(/\{имя\}/gi, vars.name || '');
+                return result;
+            }
+
+            function getFinalText(tabKey) {
+                const idx = state.selected[tabKey];
+                const raw = getTemplateText(tabKey, idx);
+                const vars = state.vars[tabKey] || { name: '', address: '' };
+                return replaceVars(raw, vars);
+            }
+
+            function renderTemplate(tabKey) {
+                const displayId = `templateDisplay${tabKey.slice(-1)}`;
+                const el = document.getElementById(displayId);
+                if (el) {
+                    const text = getFinalText(tabKey);
+                    el.textContent = text || 'Выберите шаблон';
+                }
+            }
+
+            function populateSelects() {
+                // tab1
+                const sel1 = document.getElementById('select1');
+                sel1.innerHTML = templates1.map((t,i) => `<option value="${i}">${t.title}</option>`).join('');
+                // tab2
+                const sel2 = document.getElementById('select2');
+                sel2.innerHTML = templates2.map((t,i) => `<option value="${i}">${t.title}</option>`).join('');
+                // tab3
+                const sel3 = document.getElementById('select3');
+                sel3.innerHTML = templates3.map((t,i) => `<option value="${i}">${t.title}</option>`).join('');
+            }
+
+            function updateVarsUI(tabKey) {
+                const areaId = `varArea${tabKey.slice(-1)}`;
+                const area = document.getElementById(areaId);
+                if (!area) return;
+                const vars = state.vars[tabKey] || { name: '', address: '' };
+                area.innerHTML = `
+                    <div class="var-item"><label>Имя / клиент</label><input type="text" id="varName${tabKey.slice(-1)}" placeholder="Например, Александр" value="${vars.name || ''}"></div>
+                    <div class="var-item"><label>Адрес / объект</label><input type="text" id="varAddress${tabKey.slice(-1)}" placeholder="ул. Ленина, 10" value="${vars.address || ''}"></div>
+                `;
+                // привязать события
+                const nameInput = document.getElementById(`varName${tabKey.slice(-1)}`);
+                const addrInput = document.getElementById(`varAddress${tabKey.slice(-1)}`);
+                if (nameInput) {
+                    nameInput.addEventListener('input', function() {
+                        state.vars[tabKey].name = this.value;
+                        renderTemplate(tabKey);
+                    });
+                }
+                if (addrInput) {
+                    addrInput.addEventListener('input', function() {
+                        state.vars[tabKey].address = this.value;
+                        renderTemplate(tabKey);
+                    });
+                }
+            }
+
+            function resetVars(tabKey) {
+                state.vars[tabKey] = { name: '', address: '' };
+                updateVarsUI(tabKey);
+                renderTemplate(tabKey);
+            }
+
+            // копирование
+            function copyText(tabKey) {
+                const text = getFinalText(tabKey);
+                if (!text) {
+                    showToast('Нет текста для копирования');
+                    return;
+                }
+                navigator.clipboard.writeText(text).then(() => {
+                    showToast('✅ Скопировано!');
+                }).catch(() => {
+                    // fallback
+                    const el = document.getElementById(`templateDisplay${tabKey.slice(-1)}`);
+                    if (el) {
+                        const range = document.createRange();
+                        range.selectNode(el);
+                        window.getSelection().removeAllRanges();
+                        window.getSelection().addRange(range);
+                        document.execCommand('copy');
+                        showToast('✅ Скопировано!');
+                    }
+                });
+            }
+
+            function showToast(msg) {
+                const t = document.getElementById('toast');
+                t.textContent = msg;
+                t.classList.add('show');
+                clearTimeout(t._hide);
+                t._hide = setTimeout(() => t.classList.remove('show'), 2200);
+            }
+
+            // переключение вкладок
+            function switchTab(tabId) {
+                document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.getElementById(tabId).classList.add('active');
+                document.querySelector(`.tab-btn[data-tab="${tabId}"]`).classList.add('active');
+                // обновить UI для активной вкладки
+                updateVarsUI(tabId);
+                renderTemplate(tabId);
+                // синхронизировать select
+                const idx = state.selected[tabId] || 0;
+                const sel = document.getElementById(`select${tabId.slice(-1)}`);
+                if (sel) sel.value = idx;
+            }
+
+            // инициализация
+            function init() {
+                populateSelects();
+
+                // установить начальные select
+                ['tab1','tab2','tab3'].forEach((key, i) => {
+                    const sel = document.getElementById(`select${i+1}`);
+                    if (sel) {
+                        sel.addEventListener('change', function() {
+                            const tabKey = `tab${this.id.slice(-1)}`;
+                            state.selected[tabKey] = parseInt(this.value, 10);
+                            renderTemplate(tabKey);
+                            // также обновим переменные (сброс не нужен)
+                            updateVarsUI(tabKey);
+                        });
+                        // initial
+                        state.selected[key] = 0;
+                        sel.value = 0;
+                    }
+                });
+
+                // кнопки копирования
+                document.getElementById('copyBtn1').addEventListener('click', () => copyText('tab1'));
+                document.getElementById('copyBtn2').addEventListener('click', () => copyText('tab2'));
+                document.getElementById('copyBtn3').addEventListener('click', () => copyText('tab3'));
+
+                // сброс переменных
+                document.getElementById('resetVars1').addEventListener('click', () => resetVars('tab1'));
+                document.getElementById('resetVars2').addEventListener('click', () => resetVars('tab2'));
+                document.getElementById('resetVars3').addEventListener('click', () => resetVars('tab3'));
+
+                // вкладки
+                document.querySelectorAll('.tab-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const tab = this.dataset.tab;
+                        switchTab(tab);
+                    });
+                });
+
+                // инициализация UI
+                switchTab('tab1');
+            }
+
+            // запуск
+            document.addEventListener('DOMContentLoaded', init);
+        })();
+    </script>
+</body>
+</html>
