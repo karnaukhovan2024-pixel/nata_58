@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Анализ ошибок сотрудников</title>
+  <style>
+    :root{--navy:#17365d;--blue:#2f75b5;--blue2:#4f8fe8;--ink:#1f2937;--muted:#667085;--line:#d9e2f3;--bg:#f5f8fc;--amber:#fff2cc;--red:#fce4d6;--green:#e2f0d9;--white:#fff;--shadow:0 12px 30px rgba(23,54,93,.09)}
+    *{box-sizing:border-box} body{margin:0;background:linear-gradient(135deg,#eef4fb 0%,#f9fbfe 54%,#eef5ff 100%);font-family:Inter,Segoe UI,Arial,sans-serif;color:var(--ink);line-height:1.45}
+    .wrap{max-width:1380px;margin:0 auto;padding:34px 28px 48px}.hero{display:flex;justify-content:space-between;gap:24px;align-items:flex-end;margin-bottom:22px}.eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--blue);font-weight:800;margin-bottom:8px}.title{font-size:34px;line-height:1.08;color:var(--navy);margin:0 0 10px}.subtitle{margin:0;color:var(--muted);max-width:720px}.badge{background:#e6f0ff;color:var(--navy);padding:10px 14px;border-radius:999px;font-weight:700;font-size:13px;white-space:nowrap}
+    .grid{display:grid;gap:18px}.kpis{grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:18px}.card{background:rgba(255,255,255,.92);border:1px solid rgba(217,226,243,.9);border-radius:18px;box-shadow:var(--shadow);padding:20px}.kpi-label{color:var(--muted);font-size:13px;margin-bottom:10px}.kpi-value{font-size:30px;font-weight:800;color:var(--navy)}.kpi-note{font-size:12px;color:var(--muted);margin-top:6px}.accent-red{border-top:4px solid #d96b5f}.accent-blue{border-top:4px solid var(--blue)}.accent-green{border-top:4px solid #70ad47}.accent-amber{border-top:4px solid #d6a528}
+    .main{grid-template-columns:1.02fr .98fr;align-items:stretch}.section-title{margin:0 0 4px;font-size:18px;color:var(--navy)}.section-note{color:var(--muted);font-size:13px;margin:0 0 16px}.chart-row{display:grid;grid-template-columns:1fr 1fr;gap:24px}.bar-chart{display:grid;gap:12px}.bar-item{display:grid;grid-template-columns:170px 1fr 34px;align-items:center;gap:10px;font-size:13px}.bar-label{color:#344054;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.bar-track{height:12px;background:#edf2f8;border-radius:999px;overflow:hidden}.bar-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--blue2));border-radius:999px}.bar-fill.red{background:linear-gradient(90deg,#db7c6e,#c54f45)}.bar-value{text-align:right;font-weight:800;color:var(--navy)}
+    .summary{background:linear-gradient(135deg,var(--navy),#245a92);color:#fff;border:0}.summary .section-title,.summary .section-note{color:#fff}.summary .section-note{opacity:.74}.insights{display:grid;gap:12px}.insight{display:flex;gap:12px;padding:12px 14px;border-radius:12px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15)}.insight-number{width:25px;height:25px;border-radius:50%;background:#fff;color:var(--navy);font-weight:800;display:grid;place-items:center;flex:none}.insight p{margin:0;font-size:14px}
+    .wide{margin-top:18px}.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:12px}.table{width:100%;border-collapse:collapse;min-width:800px}.table th{background:var(--navy);color:#fff;text-align:left;font-size:12px;padding:12px}.table td{padding:12px;border-bottom:1px solid #edf1f6;vertical-align:top;font-size:13px}.table tr:last-child td{border-bottom:0}.priority{font-weight:800;text-align:center;border-radius:8px;padding:4px 8px;display:inline-block}.high{background:var(--red);color:#9c0006}.medium{background:var(--amber);color:#7f6000}.ok{background:var(--green);color:#385723}.recommendations{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.rec{padding:16px;border:1px solid var(--line);border-radius:14px;background:var(--bg)}.rec h3{font-size:15px;margin:0 0 8px;color:var(--navy)}.rec p{font-size:13px;margin:0;color:#475467}.rec .owner{display:block;margin-top:12px;color:var(--blue);font-size:12px;font-weight:700}.footer{color:var(--muted);font-size:12px;margin-top:22px;text-align:right}
+    @media(max-width:980px){.kpis{grid-template-columns:repeat(2,1fr)}.main,.chart-row{grid-template-columns:1fr}.recommendations{grid-template-columns:1fr 1fr}.hero{align-items:flex-start;flex-direction:column}.badge{align-self:flex-start}}
+    @media(max-width:620px){.wrap{padding:24px 14px 34px}.title{font-size:28px}.kpis,.recommendations{grid-template-columns:1fr}.card{padding:16px}.bar-item{grid-template-columns:120px 1fr 26px;font-size:12px}}
+    @media print{body{background:#fff}.wrap{max-width:none;padding:0}.card{box-shadow:none}.badge{border:1px solid var(--line)}.footer{display:none}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header class="hero">
+      <div><div class="eyebrow">Контроль качества коммуникаций</div><h1 class="title">Анализ ошибок сотрудников</h1><p class="subtitle">Наглядный разбор 25 проверенных коммуникаций с фокусом на причины ошибок, зоны риска и следующий цикл обучения.</p></div>
+      <div class="badge">Обновлено: 21 октября 2026</div>
+    </header>
+
+    <section class="grid kpis">
+      <article class="card accent-blue"><div class="kpi-label">Проверено коммуникаций</div><div class="kpi-value">25</div><div class="kpi-note">5 сотрудников × 5 проверок</div></article>
+      <article class="card accent-red"><div class="kpi-label">Выявлено ошибок</div><div class="kpi-value">6</div><div class="kpi-note">Комментарии отличаются от «корректно»</div></article>
+      <article class="card accent-amber"><div class="kpi-label">Доля коммуникаций с ошибкой</div><div class="kpi-value">24%</div><div class="kpi-note">6 ошибок из 25 проверок</div></article>
+      <article class="card accent-green"><div class="kpi-label">Лучший результат</div><div class="kpi-value">0%</div><div class="kpi-note">Сотрудники 2 и 3 — ошибок не выявлено</div></article>
+    </section>
+
+    <section class="grid main">
+      <article class="card"><h2 class="section-title">Ошибки по сотрудникам</h2><p class="section-note">Количество ошибок и доля от 5 проверок на сотрудника.</p><div class="bar-chart">
+        <div class="bar-item"><span class="bar-label">Сотрудник 1</span><span class="bar-track"><span class="bar-fill red" style="width:66.7%"></span></span><span class="bar-value">2</span></div>
+        <div class="bar-item"><span class="bar-label">Сотрудник 2</span><span class="bar-track"><span class="bar-fill" style="width:0%"></span></span><span class="bar-value">0</span></div>
+        <div class="bar-item"><span class="bar-label">Сотрудник 3</span><span class="bar-track"><span class="bar-fill" style="width:0%"></span></span><span class="bar-value">0</span></div>
+        <div class="bar-item"><span class="bar-label">Сотрудник 4</span><span class="bar-track"><span class="bar-fill red" style="width:33.3%"></span></span><span class="bar-value">1</span></div>
+        <div class="bar-item"><span class="bar-label">Сотрудник 5</span><span class="bar-track"><span class="bar-fill red" style="width:100%"></span></span><span class="bar-value">3</span></div>
+      </div></article>
+      <article class="card"><h2 class="section-title">Типы ошибок</h2><p class="section-note">Что чаще всего не было сделано в разговоре.</p><div class="bar-chart">
+        <div class="bar-item"><span class="bar-label">Мотивация и причина отказа</span><span class="bar-track"><span class="bar-fill" style="width:100%"></span></span><span class="bar-value">2</span></div>
+        <div class="bar-item"><span class="bar-label">Ценность услуги и комиссия</span><span class="bar-track"><span class="bar-fill" style="width:100%"></span></span><span class="bar-value">2</span></div>
+        <div class="bar-item"><span class="bar-label">Ситуация и причины отсутствия результата</span><span class="bar-track"><span class="bar-fill" style="width:50%"></span></span><span class="bar-value">1</span></div>
+        <div class="bar-item"><span class="bar-label">«Сам продам» / непонятная программа</span><span class="bar-track"><span class="bar-fill" style="width:50%"></span></span><span class="bar-value">1</span></div>
+      </div></article>
+    </section>
+
+    <section class="card summary wide"><h2 class="section-title">Ключевые выводы</h2><p class="section-note">Главный управленческий сигнал из выборки.</p><div class="insights">
+      <div class="insight"><span class="insight-number">1</span><p><strong>Сотрудник 5 — приоритет №1:</strong> 3 ошибки из 5 проверок, доля ошибок 60%.</p></div>
+      <div class="insight"><span class="insight-number">2</span><p><strong>Основной паттерн:</strong> менеджер переходит к аргументам или торгу до диагностики причины отказа и ценности для клиента.</p></div>
+      <div class="insight"><span class="insight-number">3</span><p><strong>Фокус обучения:</strong> уточнить причину → подтвердить понимание → показать ценность → договориться о следующем шаге.</p></div>
+    </div></section>
+
+    <section class="card wide"><h2 class="section-title">Рекомендации на ближайшие 2 недели</h2><p class="section-note">Действия, которые можно сразу встроить в обучение и контроль качества.</p><div class="recommendations">
+      <article class="rec"><h3>1. Тренировать диагностику</h3><p>Не переходить к продаже решения, пока не названа и не подтверждена основная причина сомнения клиента.</p><span class="owner">Ответственный: руководитель группы</span></article>
+      <article class="rec"><h3>2. Отработать «дорого»</h3><p>Сначала выяснять, почему комиссия кажется неоправданной, затем связывать услугу с выгодой клиента.</p><span class="owner">Ответственный: наставник</span></article>
+      <article class="rec"><h3>3. Отработать «сам продам»</h3><p>Уточнять, что именно клиент берет на себя и какого риска хочет избежать.</p><span class="owner">Ответственный: наставник</span></article>
+    </div></section>
+
+    <section class="card wide"><h2 class="section-title">Детализация ошибок</h2><p class="section-note">Короткая формулировка проблемы и рекомендуемый вопрос.</p><div class="table-wrap"><table class="table"><thead><tr><th>Сотрудник</th><th>Тип ошибки</th><th>Наблюдение</th><th>Рекомендуемый вопрос</th><th>Приоритет</th></tr></thead><tbody>
+      <tr><td>1</td><td>Мотивация</td><td>Не выяснено, почему клиент выбрал другой вариант или передумал продавать.</td><td>«Что именно повлияло на ваше решение: доверие, цена, сроки или обстоятельства?»</td><td><span class="priority medium">Средний</span></td></tr>
+      <tr><td>4</td><td>Ситуация</td><td>Не разобрано, почему объект долго не продается и что уже пробовал клиент.</td><td>«Сколько было обращений и показов, и какие причины отказов вы слышали?»</td><td><span class="priority high">Высокий</span></td></tr>
+      <tr><td>5</td><td>«Сам продам»</td><td>Не уточнено, что именно клиенту непонятно в программе и почему он откладывает решение.</td><td>«Что именно в программе осталось непонятным: комиссия, процесс или зона ответственности агента?»</td><td><span class="priority high">Высокий</span></td></tr>
+      <tr><td>5</td><td>Комиссия</td><td>Комиссия обсуждалась раньше ценности, из-за чего разговор звучал как торг.</td><td>«Что делает комиссию неоправданной: сумма, прошлый опыт или сомнение в результате?»</td><td><span class="priority high">Высокий</span></td></tr>
+    </tbody></table></div></section>
+    <div class="footer">Источник: приложенная таблица с результатами проверок сотрудников.</div>
+  </main>
+</body>
+</html>
